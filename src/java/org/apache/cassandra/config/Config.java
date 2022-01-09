@@ -37,6 +37,14 @@ import org.apache.cassandra.audit.AuditLogOptions;
 import org.apache.cassandra.fql.FullQueryLoggerOptions;
 import org.apache.cassandra.db.ConsistencyLevel;
 
+import java.lang.reflect.Field; // msx
+import java.lang.management.ManagementFactory; // msx
+
+// msx
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.File;
+
 /**
  * A class that contains configuration properties for the cassandra node it runs within.
  *
@@ -44,6 +52,38 @@ import org.apache.cassandra.db.ConsistencyLevel;
  */
 public class Config
 {
+    public boolean zbGetBoolean(String paraName) {
+        boolean fieldValue = false;
+        try {
+            Field privateField = Config.class.getDeclaredField(paraName);
+            privateField.setAccessible(true);
+            fieldValue = (Boolean) privateField.get(this);
+            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+            long pid = Long.parseLong(jvmName.split("@")[0]);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+            writer.write("zbGetBoolean " + pid + " " + paraName + " " + fieldValue + "\n");
+            writer.close();
+            //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + fieldValue);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return fieldValue;
+    }
+    
+    public int zbGetInt(String paraName) {
+        int fieldValue = 0;
+        try {
+            Field privateField = Config.class.getDeclaredField(paraName);
+            privateField.setAccessible(true);
+            fieldValue = (Integer) privateField.get(this);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        logger.warn("[msx] zbGetInt return " + fieldValue + " for para " + paraName);
+        return fieldValue;
+    }
+
+
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
     /*

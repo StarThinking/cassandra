@@ -81,6 +81,12 @@ import static org.apache.cassandra.config.CassandraRelevantProperties.SUN_ARCH_D
 import static org.apache.cassandra.io.util.FileUtils.ONE_GB;
 import static org.apache.cassandra.io.util.FileUtils.ONE_MB;
 
+// msx
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.File;
+import java.lang.management.ManagementFactory;
+
 public class DatabaseDescriptor
 {
     static
@@ -164,6 +170,16 @@ public class DatabaseDescriptor
 
     public static void daemonInitialization(Supplier<Config> config) throws ConfigurationException
     {
+        try {
+            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+            long pid = Long.parseLong(jvmName.split("@")[0]);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+            writer.write("init daemon pid " + pid + "\n");
+            writer.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        //logger.info("[msx-init] daemonInitialization is called");
         if (toolInitialized)
             throw new AssertionError("toolInitialization() already called");
         if (clientInitialized)
@@ -197,6 +213,16 @@ public class DatabaseDescriptor
      */
     public static void toolInitialization(boolean failIfDaemonOrClient)
     {
+        try {
+            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+            long pid = Long.parseLong(jvmName.split("@")[0]);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+            writer.write("init tool pid " + pid + "\n");
+            writer.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        //logger.info("[msx-init] toolInitialization is called");
         if (!failIfDaemonOrClient && (daemonInitialized || clientInitialized))
         {
             return;
@@ -242,6 +268,16 @@ public class DatabaseDescriptor
      */
     public static void clientInitialization(boolean failIfDaemonOrTool)
     {
+        try {
+            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+            long pid = Long.parseLong(jvmName.split("@")[0]);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+            writer.write("init client pid " + pid + "\n");
+            writer.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        //logger.info("[msx-init] clientInitialization is called");
         if (!failIfDaemonOrTool && (daemonInitialized || toolInitialized))
         {
             return;
@@ -3096,7 +3132,7 @@ public class DatabaseDescriptor
 
     public static boolean automaticSSTableUpgrade()
     {
-        return conf.automatic_sstable_upgrade;
+        return conf.zbGetBoolean("automatic_sstable_upgrade");
     }
 
     public static void setAutomaticSSTableUpgradeEnabled(boolean enabled)
