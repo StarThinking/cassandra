@@ -954,7 +954,7 @@ public class DatabaseDescriptor
         }
         else if (config.listen_interface != null)
         {
-            listenAddress = getNetworkInterfaceAddress(config.listen_interface, "listen_interface", config.listen_interface_prefer_ipv6);
+            listenAddress = getNetworkInterfaceAddress(config.listen_interface, "listen_interface", config.zbGetBoolean("listen_interface_prefer_ipv6"));
         }
 
         /* Gossip Address to broadcast */
@@ -2079,7 +2079,7 @@ public class DatabaseDescriptor
 
     public static boolean shouldListenOnBroadcastAddress()
     {
-        return conf.listen_on_broadcast_address;
+        return conf.zbGetBoolean("listen_on_broadcast_address");
     }
 
     public static void setShouldListenOnBroadcastAddress(boolean shouldListenOnBroadcastAddress)
@@ -2291,12 +2291,12 @@ public class DatabaseDescriptor
 
     public static boolean useNativeTransportLegacyFlusher()
     {
-        return conf.native_transport_flush_in_batches_legacy;
+        return conf.zbGetBoolean("native_transport_flush_in_batches_legacy");
     }
 
     public static boolean getNativeTransportAllowOlderProtocols()
     {
-        return conf.native_transport_allow_older_protocols;
+        return conf.zbGetBoolean("native_transport_allow_older_protocols");
     }
 
     public static void setNativeTransportAllowOlderProtocols(boolean isEnabled)
@@ -2467,7 +2467,7 @@ public class DatabaseDescriptor
 
     public static boolean hintedHandoffEnabled()
     {
-        return conf.hinted_handoff_enabled;
+        return conf.zbGetBoolean("hinted_handoff_enabled");
     }
 
     public static Set<String> hintedHandoffDisabledDCs()
@@ -2603,7 +2603,7 @@ public class DatabaseDescriptor
 
     public static boolean isIncrementalBackupsEnabled()
     {
-        return conf.incremental_backups;
+        return conf.zbGetBoolean("incremental_backups");
     }
 
     public static void setIncrementalBackupsEnabled(boolean value)
@@ -2613,7 +2613,7 @@ public class DatabaseDescriptor
 
     public static boolean getFileCacheEnabled()
     {
-        return conf.file_cache_enabled;
+        return conf.zbGetBoolean("file_cache_enabled");
     }
 
     public static int getFileCacheSizeInMB()
@@ -2834,7 +2834,7 @@ public class DatabaseDescriptor
 
     public static boolean getInterDCTcpNoDelay()
     {
-        return conf.inter_dc_tcp_nodelay;
+        return conf.zbGetBoolean("inter_dc_tcp_nodelay");
     }
 
     public static long getMemtableHeapSpaceInMb()
@@ -2933,7 +2933,7 @@ public class DatabaseDescriptor
 
     public static boolean enableUserDefinedFunctions()
     {
-        return conf.enable_user_defined_functions;
+        return conf.zbGetBoolean("enable_user_defined_functions");
     }
 
     public static boolean enableScriptedUserDefinedFunctions()
@@ -3195,7 +3195,7 @@ public class DatabaseDescriptor
 
     public static boolean getRepairedDataTrackingForPartitionReadsEnabled()
     {
-        return conf.repaired_data_tracking_for_partition_reads_enabled;
+        return conf.zbGetBoolean("repaired_data_tracking_for_partition_reads_enabled");
     }
 
     public static void setRepairedDataTrackingForPartitionReadsEnabled(boolean enabled)
