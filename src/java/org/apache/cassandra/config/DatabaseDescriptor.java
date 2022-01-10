@@ -599,7 +599,7 @@ public class DatabaseDescriptor
             }
         }
 
-        if (conf.cdc_enabled)
+        if (conf.zbGetBoolean("cdc_enabled"))
         {
             // Windows memory-mapped CommitLog files is incompatible with CDC as we hard-link files in cdc_raw. Confirm we don't have both enabled.
             if (FBUtilities.isWindows && conf.commitlog_compression == null)
@@ -1436,7 +1436,7 @@ public class DatabaseDescriptor
                 throw new ConfigurationException("saved_caches_directory must be specified", false);
             FileUtils.createDirectory(conf.saved_caches_directory);
 
-            if (conf.cdc_enabled)
+            if (conf.zbGetBoolean("cdc_enabled"))
             {
                 if (conf.cdc_raw_directory == null)
                     throw new ConfigurationException("cdc_raw_directory must be specified", false);
@@ -1707,7 +1707,7 @@ public class DatabaseDescriptor
 
     public static boolean hasCrossNodeTimeout()
     {
-        return conf.cross_node_timeout;
+        return conf.zbGetBoolean("cross_node_timeout");
     }
 
     public static void setCrossNodeTimeout(boolean crossNodeTimeout)
@@ -2423,7 +2423,7 @@ public class DatabaseDescriptor
 
     public static boolean isAutoSnapshot()
     {
-        return conf.auto_snapshot;
+        return conf.zbGetBoolean("auto_snapshot");
     }
 
     @VisibleForTesting
@@ -2434,7 +2434,7 @@ public class DatabaseDescriptor
     @VisibleForTesting
     public static boolean getAutoSnapshot()
     {
-        return conf.auto_snapshot;
+        return conf.zbGetBoolean("auto_snapshot");
     }
 
     public static long getSnapshotLinksPerSecond()
@@ -2938,7 +2938,7 @@ public class DatabaseDescriptor
 
     public static boolean enableScriptedUserDefinedFunctions()
     {
-        return conf.enable_scripted_user_defined_functions;
+        return conf.zbGetBoolean("enable_scripted_user_defined_functions");
     }
 
     public static void enableScriptedUserDefinedFunctions(boolean enableScriptedUserDefinedFunctions)
@@ -2963,7 +2963,7 @@ public class DatabaseDescriptor
 
     public static boolean getEnableMaterializedViews()
     {
-        return conf.enable_materialized_views;
+        return conf.zbGetBoolean("enable_materialized_views");
     }
 
     public static void setEnableMaterializedViews(boolean enableMaterializedViews)
@@ -2973,7 +2973,7 @@ public class DatabaseDescriptor
 
     public static boolean getEnableSASIIndexes()
     {
-        return conf.enable_sasi_indexes;
+        return conf.zbGetBoolean("enable_sasi_indexes");
     }
 
     public static void setEnableSASIIndexes(boolean enableSASIIndexes)
@@ -2983,7 +2983,7 @@ public class DatabaseDescriptor
 
     public static boolean isTransientReplicationEnabled()
     {
-        return conf.enable_transient_replication;
+        return conf.zbGetBoolean("enable_transient_replication");
     }
 
     public static void setTransientReplicationEnabledUnsafe(boolean enabled)
@@ -2993,7 +2993,7 @@ public class DatabaseDescriptor
 
     public static boolean enableDropCompactStorage()
     {
-        return conf.enable_drop_compact_storage;
+        return conf.zbGetBoolean("enable_drop_compact_storage");
     }
 
     @VisibleForTesting
@@ -3039,7 +3039,7 @@ public class DatabaseDescriptor
 
     public static boolean isCDCEnabled()
     {
-        return conf.cdc_enabled;
+        return conf.zbGetBoolean("cdc_enabled");
     }
 
     @VisibleForTesting
@@ -3087,7 +3087,7 @@ public class DatabaseDescriptor
 
     public static boolean diagnosticEventsEnabled()
     {
-        return conf.diagnostic_events_enabled;
+        return conf.zbGetBoolean("diagnostic_events_enabled");
     }
 
     public static void setDiagnosticEventsEnabled(boolean enabled)

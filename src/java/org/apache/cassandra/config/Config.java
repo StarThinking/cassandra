@@ -66,6 +66,7 @@ public class Config
             //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + fieldValue);
         } catch(Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         return fieldValue;
     }
@@ -78,6 +79,7 @@ public class Config
             fieldValue = (Integer) privateField.get(this);
         } catch(Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
         logger.warn("[msx] zbGetInt return " + fieldValue + " for para " + paraName);
         return fieldValue;
