@@ -59,7 +59,7 @@ public class DiagEventsBlockingReadRepairTest extends AbstractReadRepairTest
     public static void setUpClass() throws Throwable
     {
         OverrideConfigurationLoader.override((config) -> {
-            config.diagnostic_events_enabled = true;
+            config.diagnostic_events_enabled = true; // msx test set()
         });
         configureClass(ReadRepairStrategy.BLOCKING);
     }

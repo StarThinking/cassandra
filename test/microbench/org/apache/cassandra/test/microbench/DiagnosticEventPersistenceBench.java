@@ -55,7 +55,7 @@ public class DiagnosticEventPersistenceBench
     public void setup()
     {
         OverrideConfigurationLoader.override((config) -> {
-            config.diagnostic_events_enabled = true;
+            config.diagnostic_events_enabled = true; // msx test set()
         });
         DatabaseDescriptor.daemonInitialization();
 

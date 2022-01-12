@@ -991,7 +991,7 @@ public class DatabaseDescriptor
         }
         else if (config.rpc_interface != null)
         {
-            rpcAddress = getNetworkInterfaceAddress(config.rpc_interface, "rpc_interface", config.rpc_interface_prefer_ipv6);
+            rpcAddress = getNetworkInterfaceAddress(config.rpc_interface, "rpc_interface", config.zbGetBoolean("rpc_interface_prefer_ipv6"));
         }
         else
         {
@@ -2139,7 +2139,7 @@ public class DatabaseDescriptor
 
     public static boolean getRpcKeepAlive()
     {
-        return conf.rpc_keepalive;
+        return conf.zbGetBoolean("rpc_keepalive");
     }
 
     public static int getInternodeSocketSendBufferSizeInBytes()
@@ -2225,7 +2225,7 @@ public class DatabaseDescriptor
 
     public static boolean startNativeTransport()
     {
-        return conf.start_native_transport;
+        return conf.zbGetBoolean("start_native_transport");
     }
 
     /**
@@ -2418,7 +2418,7 @@ public class DatabaseDescriptor
 
     public static boolean isSnapshotBeforeCompaction()
     {
-        return conf.snapshot_before_compaction;
+        return conf.zbGetBoolean("snapshot_before_compaction");
     }
 
     public static boolean isAutoSnapshot()
@@ -2687,7 +2687,7 @@ public class DatabaseDescriptor
 
     public static boolean getTrickleFsync()
     {
-        return conf.trickle_fsync;
+        return conf.zbGetBoolean("trickle_fsync");
     }
 
     public static int getTrickleFsyncIntervalInKb()
@@ -2809,7 +2809,7 @@ public class DatabaseDescriptor
 
     public static boolean streamEntireSSTables()
     {
-        return conf.stream_entire_sstables;
+        return conf.zbGetBoolean("stream_entire_sstables");
     }
 
     public static String getLocalDataCenter()
@@ -3137,7 +3137,7 @@ public class DatabaseDescriptor
 
     public static void setAutomaticSSTableUpgradeEnabled(boolean enabled)
     {
-        if (conf.automatic_sstable_upgrade != enabled)
+        if (conf.zbGetBoolean("automatic_sstable_upgrade") != enabled)
             logger.debug("Changing automatic_sstable_upgrade to {}", enabled);
         conf.automatic_sstable_upgrade = enabled;
     }
@@ -3185,7 +3185,7 @@ public class DatabaseDescriptor
 
     public static boolean getRepairedDataTrackingForRangeReadsEnabled()
     {
-        return conf.repaired_data_tracking_for_range_reads_enabled;
+        return conf.zbGetBoolean("repaired_data_tracking_for_range_reads_enabled");
     }
 
     public static void setRepairedDataTrackingForRangeReadsEnabled(boolean enabled)
@@ -3225,7 +3225,7 @@ public class DatabaseDescriptor
 
     public static boolean reportUnconfirmedRepairedDataMismatches()
     {
-        return conf.report_unconfirmed_repaired_data_mismatches;
+        return conf.zbGetBoolean("report_unconfirmed_repaired_data_mismatches");
     }
 
     public static void reportUnconfirmedRepairedDataMismatches(boolean enabled)

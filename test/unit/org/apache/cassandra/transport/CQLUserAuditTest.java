@@ -65,7 +65,7 @@ public class CQLUserAuditTest
         OverrideConfigurationLoader.override((config) -> {
             config.authenticator = "PasswordAuthenticator";
             config.role_manager = "CassandraRoleManager";
-            config.diagnostic_events_enabled = true;
+            config.diagnostic_events_enabled = true; // msx test set()
             config.audit_logging_options.enabled = true;
             config.audit_logging_options.logger = new ParameterizedClass("DiagnosticEventAuditLogger", null);
         });

@@ -125,7 +125,7 @@ public class DatabaseDescriptorTest
             testConfig = DatabaseDescriptor.loadConfig();
             testConfig.rpc_interface = suitableInterface.getName();
             testConfig.rpc_address = null;
-            testConfig.rpc_interface_prefer_ipv6 = true;
+            testConfig.rpc_interface_prefer_ipv6 = true; // msx test set()
             DatabaseDescriptor.applyAddressConfig(testConfig);
 
             assertEquals(DatabaseDescriptor.getRpcAddress().getClass(), Inet6Address.class);
@@ -133,7 +133,7 @@ public class DatabaseDescriptorTest
             testConfig = DatabaseDescriptor.loadConfig();
             testConfig.rpc_interface = suitableInterface.getName();
             testConfig.rpc_address = null;
-            testConfig.rpc_interface_prefer_ipv6 = false;
+            testConfig.rpc_interface_prefer_ipv6 = false; // msx test set()
             DatabaseDescriptor.applyAddressConfig(testConfig);
 
             assertEquals(DatabaseDescriptor.getRpcAddress().getClass(), Inet4Address.class);
@@ -163,7 +163,7 @@ public class DatabaseDescriptorTest
             testConfig = DatabaseDescriptor.loadConfig();
             testConfig.listen_interface = suitableInterface.getName();
             testConfig.listen_address = null;
-            testConfig.listen_interface_prefer_ipv6 = true;
+            testConfig.listen_interface_prefer_ipv6 = true; // msx test set()
             DatabaseDescriptor.applyAddressConfig(testConfig);
 
             assertEquals(DatabaseDescriptor.getListenAddress().getClass(), Inet6Address.class);
@@ -171,7 +171,7 @@ public class DatabaseDescriptorTest
             testConfig = DatabaseDescriptor.loadConfig();
             testConfig.listen_interface = suitableInterface.getName();
             testConfig.listen_address = null;
-            testConfig.listen_interface_prefer_ipv6 = false;
+            testConfig.listen_interface_prefer_ipv6 = false; // msx test set()
             DatabaseDescriptor.applyAddressConfig(testConfig);
 
             assertEquals(DatabaseDescriptor.getListenAddress().getClass(), Inet4Address.class);
