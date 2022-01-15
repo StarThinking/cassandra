@@ -44,7 +44,10 @@ import java.lang.management.ManagementFactory; // msx
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.File;
-
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.HashSet;
 /**
  * A class that contains configuration properties for the cassandra node it runs within.
  *
@@ -52,17 +55,24 @@ import java.io.File;
  */
 public class Config
 {
+    private static Map<String, Set<String>> zbGetBooleanCache = new HashMap<String, Set<String>>();
+
     public boolean zbGetBoolean(String paraName) {
         boolean fieldValue = false;
         try {
             Field privateField = Config.class.getDeclaredField(paraName);
             privateField.setAccessible(true);
             fieldValue = (Boolean) privateField.get(this);
-            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-            long pid = Long.parseLong(jvmName.split("@")[0]);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-            writer.write("zbGetBoolean " + pid + " " + paraName + " " + fieldValue + "\n");
-            writer.close();
+            Set<String> hasKey = Config.zbGetBooleanCache.get(paraName);
+            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(fieldValue)))) {
+                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+                long pid = Long.parseLong(jvmName.split("@")[0]);
+                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+                writer.write("zbGetBoolean " + pid + " " + paraName + " " + fieldValue + "\n");
+                writer.close();    
+            }
+            Config.zbGetBooleanCache.putIfAbsent(paraName, new HashSet<String>());
+            Config.zbGetBooleanCache.get(paraName).add(String.valueOf(fieldValue));
             //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + fieldValue);
         } catch(Exception e) {
             e.printStackTrace();
