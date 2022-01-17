@@ -83,7 +83,9 @@ import static org.apache.cassandra.io.util.FileUtils.ONE_MB;
 
 // msx
 import java.io.BufferedWriter;
+import java.io.BufferedReader;
 import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 
@@ -163,6 +165,28 @@ public class DatabaseDescriptor
                                        ? new CommitLogSegmentManagerCDC(c, DatabaseDescriptor.getCommitLogLocation())
                                        : new CommitLogSegmentManagerStandard(c, DatabaseDescriptor.getCommitLogLocation());
 
+    private static int updateComponentId(long pid) {
+        int lineCount = 0;
+        try {
+            final String myIdPath = "/tmp/my_id.txt";
+            File myIdPathFile = new File(myIdPath);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(myIdPathFile, true));
+            writer.write(pid + "\n");
+            writer.close();
+            BufferedReader reader = new BufferedReader(new FileReader(myIdPathFile));
+            String buffer = "";
+            buffer = reader.readLine();
+            while (buffer != null) {
+                buffer = reader.readLine();
+                lineCount++;
+            }
+            reader.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return lineCount;
+    }
+
     public static void daemonInitialization() throws ConfigurationException
     {
         daemonInitialization(DatabaseDescriptor::loadConfig);
@@ -176,6 +200,9 @@ public class DatabaseDescriptor
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
             writer.write("init daemon pid " + pid + "\n");
             writer.close();
+            // update component type and id
+            Config.componentType = "Daemon";
+            Config.componentId = updateComponentId(pid);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -219,6 +246,9 @@ public class DatabaseDescriptor
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
             writer.write("init tool pid " + pid + "\n");
             writer.close();
+            // update component type and id
+            Config.componentType = "Tool";
+            Config.componentId = updateComponentId(pid);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -274,6 +304,9 @@ public class DatabaseDescriptor
             BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
             writer.write("init client pid " + pid + "\n");
             writer.close();
+            // update component type and id
+            Config.componentType = "Client";
+            Config.componentId = updateComponentId(pid);
         } catch(Exception e) {
             e.printStackTrace();
         }

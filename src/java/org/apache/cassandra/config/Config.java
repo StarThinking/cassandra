@@ -42,6 +42,7 @@ import java.lang.management.ManagementFactory; // msx
 
 // msx
 import java.io.BufferedWriter;
+import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.File;
 import java.util.Map;
@@ -56,9 +57,12 @@ import java.util.HashSet;
 public class Config
 {
     private static Map<String, Set<String>> zbGetBooleanCache = new HashMap<String, Set<String>>();
+    public static String componentType = "";
+    public static int componentId = 0;
 
     public boolean zbGetBoolean(String paraName) {
         boolean fieldValue = false;
+        ConfAgent.whichV("123", "123");
         try {
             Field privateField = Config.class.getDeclaredField(paraName);
             privateField.setAccessible(true);
@@ -68,7 +72,9 @@ public class Config
                 String jvmName = ManagementFactory.getRuntimeMXBean().getName();
                 long pid = Long.parseLong(jvmName.split("@")[0]);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                writer.write("zbGetBoolean " + pid + " " + paraName + " " + fieldValue + "\n");
+                //writer.write("zbGetBoolean " + pid + " " + paraName + " " + fieldValue + "\n");
+                writer.write("zbGetBoolean " + pid + " " + componentType + "." + componentId
+                    + " " + paraName + " " + fieldValue + "\n");
                 writer.close();    
             }
             Config.zbGetBooleanCache.putIfAbsent(paraName, new HashSet<String>());
