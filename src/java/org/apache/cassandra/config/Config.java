@@ -61,31 +61,35 @@ public class Config
     public static int componentId = 0;
 
     public boolean zbGetBoolean(String paraName) {
-        boolean fieldValue = false;
-        ConfAgent.whichV("123", "123");
+        boolean realValue = false;
         try {
             Field privateField = Config.class.getDeclaredField(paraName);
             privateField.setAccessible(true);
-            fieldValue = (Boolean) privateField.get(this);
+            boolean fieldValue = (Boolean) privateField.get(this);
+            String confAgentRet = ConfAgent.whichV(paraName, String.valueOf(fieldValue), componentType, componentId);
+            realValue = Boolean.parseBoolean(confAgentRet);
+            
+            // print only if para,value pair not processed before
             Set<String> hasKey = Config.zbGetBooleanCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(fieldValue)))) {
+            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
                 String jvmName = ManagementFactory.getRuntimeMXBean().getName();
                 long pid = Long.parseLong(jvmName.split("@")[0]);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetBoolean " + pid + " " + paraName + " " + fieldValue + "\n");
+                //writer.write("zbGetBoolean " + pid + " " + paraName + " " + realValue + "\n");
                 writer.write("zbGetBoolean " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + fieldValue + "\n");
+                    + " " + paraName + " " + realValue + "\n");
                 writer.close();    
             }
+            
             Config.zbGetBooleanCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetBooleanCache.get(paraName).add(String.valueOf(fieldValue));
-            //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + fieldValue);
+            Config.zbGetBooleanCache.get(paraName).add(String.valueOf(realValue));
+            //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + realValue);
         } catch(Exception e) {
             e.printStackTrace();
             logger.warn("[msx] error happens in zbGetBoolean");
             System.exit(1);
         }
-        return fieldValue;
+        return realValue;
     }
     
     public int zbGetInt(String paraName) {

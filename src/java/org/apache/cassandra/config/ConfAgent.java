@@ -21,7 +21,12 @@ import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConfAgent {
+    private static final Logger logger = LoggerFactory.getLogger(ConfAgent.class);
+   
     private static boolean msxConfEnable = false;
     private static final String reconf_systemRootDir = System.getenv("ZEBRACONF_HOME") + "/runner/shared/";
     private static String reconf_vvmode = "";
@@ -64,7 +69,7 @@ public class ConfAgent {
             reader.close();
             if (!reconf_vvmode.equals("v1v1") && !reconf_vvmode.equals("v2v2") && !reconf_vvmode.equals("v1v2") && 
                 !reconf_vvmode.equals("none")) {
-                myErrorPrint("ERROR : wrong value of reconf_vvmode " + reconf_vvmode);
+                myPrint("ERROR : wrong value of reconf_vvmode " + reconf_vvmode);
                 System.exit(1);
             }
                 
@@ -86,127 +91,77 @@ public class ConfAgent {
         	for (String task : htasks) {
             	    String[] fields = task.split("@@@");
             	    if (fields.length != 5) {
-                        myErrorPrint("ERROR: wrong fields length");
+                        myPrint("ERROR: wrong fields length");
                     }
                     HTask tt = new HTask(fields[0], fields[1], fields[2], fields[3], fields[4]);
                     h_list.add(tt);
                 }
             }
-	    myInfoPrint("v17.0 reconf_vvmode=" + reconf_vvmode + ", reconf_h_list=" + h_list); 
+	    myPrint("v17.0 reconf_vvmode=" + reconf_vvmode + ", reconf_h_list=" + h_list); 
         } catch (Exception e) {
-            myErrorPrint("ERROR : loadSharedVariables");
+            myPrint("ERROR : loadSharedVariables");
             e.printStackTrace();
         }
     }
 
-    public static synchronized String whichV(String para, String v) {
-        /*if (reconf_vvmode.equals("none")) {
-            if (msxConfEnable == true) {
-                ComponentConf entry_found = findEntryByConf(conf);
-                if (v != null) {
-                    if (entry_found != null) {
-                        System.out.println("msx-get " + para + " " + entry_found.componentWithIndex() + " "
-                            + v + " getter");
-                    } else {
-                        System.out.println("msx-get " + para + " " + "unit_test" + " "
-                            + v + " getter");
-                    }
-                }
-            }
-            return v;
-        }*/
+    private static String returnHelper(String para, String value, String componentType, int componentId) {
+        myPrint("parameter " + para + " returns " + value + " as considered component " + 
+            componentType + "." + componentId);
+        return value;
+    }
 
-        // check if this para matches any tasks in h_list
-        boolean para_concerned = false;
+    public static synchronized String whichV(String para, String v, String componentType, int componentId) {
+        // check each task/rule in the htask list
         for (HTask task : h_list) {
-            if (task.reconf_parameter.equals(para)) {
-                para_concerned = true;
-            }
-        }
-        if (para_concerned == false) {
-            return v;
-        }
-
-        // h_list is used after this point
-        for (HTask task : h_list) {
-            // if I'm not the concerned para, continue to the next task
-            if (!para.equals(task.reconf_parameter)) {
-                continue;
-            }
-
-            // decide value for reconf_parameter with mode v1v1/v2v2/v1v2
-            if (ConfAgent.reconf_vvmode.equals("v1v1")) {
-                myPrint("get-return para " + para + " " +
-                    task.reconf_v1 + " for v1v1");
-                return task.reconf_v1;
-            }
-            
-            if (ConfAgent.reconf_vvmode.equals("v2v2")) {
-                myPrint("get-return para " + para + " " +
-                    task.reconf_v2 + " for v2v2");
-                return task.reconf_v2;
-            }
-
-            // 1. external, 2. component internal
-            if (ConfAgent.reconf_vvmode.equals("v1v2")) {
-                // check if component group match; if not, set with v1
-                /*if (!entry.group.equals(task.reconf_component)) {
-                    myPrint("get-return para " + para + " " +
-                        task.reconf_v1 + " for other components " + entry.componentWithIndex());
+            if (para.equals(task.reconf_parameter)) {
+                if (ConfAgent.reconf_vvmode.equals("v1v1")) {
+                    myPrint("parameter " + para + " returns " + task.reconf_v1 + " with v1v1");
                     return task.reconf_v1;
-                } else { // group match
-                    // decide v1 or v2 for our interested component object based on index
-                    if (task.reconf_point_int == -1) { // set odd components with v2
-                        if ((entry.index % 2) == 1) {
-                            myPrint("get-return para " + para + " " +
-                                task.reconf_v2 + " for " + entry.componentWithIndex());
-                            return task.reconf_v2;
-                        } else {
-                            myPrint("get-return para " + para + " " +
-                                task.reconf_v1 + " for " + entry.componentWithIndex());
-                            return task.reconf_v1;
-                        }
-                    } else if (task.reconf_point_int == -2) { // set even components with v2
-                        if ((entry.index % 2) == 0) {
-                            myPrint("get-return para " + para + " " +
-                                task.reconf_v2 + " for " + entry.componentWithIndex());
-                            return task.reconf_v2;
-                        } else {
-                            myPrint("get-return para " + para + " " +
-                                task.reconf_v1 + " for " + entry.componentWithIndex());
-                            return task.reconf_v1;
-                        }
-                    } else if (task.reconf_point_int == -3) { // set v2 for all components in this group
-                        myPrint("get-return para " + para + " " +
-                            task.reconf_v2 + " for " + entry.componentWithIndex());
-                        return task.reconf_v2;
-                    } else { // set v2 to component whose index is reconf_point_int
-                        if (entry.index == task.reconf_point_int) {
-                            myPrint("get-return para " + para + " " +
-                                task.reconf_v2 + " for " + entry.componentWithIndex());
-                            return task.reconf_v2;
-                        } else {
-                            myPrint("get-return para " + para + " " +
-                                task.reconf_v1 + " for " + entry.componentWithIndex());
-                            return task.reconf_v1;
+                }
+                
+                if (ConfAgent.reconf_vvmode.equals("v2v2")) {
+                    myPrint("parameter " + para + " returns " + task.reconf_v2 + " with v2v2");
+                    return task.reconf_v2;
+                }
+
+                if (ConfAgent.reconf_vvmode.equals("v1v2")) {
+                    // if component type does not match, return v1
+                    if (!componentType.equals(task.reconf_component)) {
+                        myPrint("parameter " + para + " returns v1 " + task.reconf_v1 + 
+                            " as none-considered component " + componentType + "." + componentId);
+                        return task.reconf_v1;
+                    } else { // component type matches; determine value by component id
+                        if (task.reconf_point_int == -1) { // set odd-id instances with v2
+                            if ((componentId % 2) == 1)
+                                return returnHelper(para, task.reconf_v2, componentType, componentId);
+                            else
+                                return returnHelper(para, task.reconf_v1, componentType, componentId);
+                        } else if (task.reconf_point_int == -2) { // set even-id instances with v2
+                            if ((componentId % 2) == 0)
+                                return returnHelper(para, task.reconf_v2, componentType, componentId);
+                            else
+                                return returnHelper(para, task.reconf_v1, componentType, componentId);
+                        } else if (task.reconf_point_int == -3) { // set all instances with v2
+                            return returnHelper(para, task.reconf_v2, componentType, componentId);
+                        } else { // set instance whose index is exactly reconf_point_int with v2
+                            if (componentId == task.reconf_point_int)
+                                return returnHelper(para, task.reconf_v2, componentType, componentId);
+                            else
+                                return returnHelper(para, task.reconf_v1, componentType, componentId);
                         }
                     }
-                }*/
-            } 
+                } 
+            }
         }
         
-        // should not reach here
-        myErrorPrint("ERROR: should not reach here in whichV");
+        // when vvmode is none (h_list is empty) or para not included in any htask, return the original value
+        myPrint("parameter " + para + " returns original " + v);
         return v;
     }
-
+    
     public static void myPrint(String str) { 
         if (msxConfEnable) {
-            System.out.println("msx-confcontroller " + str);
-        } 
+            logger.warn("[msx-confagent] " + str);
+        }
     }
-    
-    public static void myErrorPrint(String str) { if (msxConfEnable) { System.out.println("msx-confcontroller " + str);}}
-    
-    public static void myInfoPrint(String str) { if (msxConfEnable) {System.out.println("msx-confcontroller " + str);}}
 }
