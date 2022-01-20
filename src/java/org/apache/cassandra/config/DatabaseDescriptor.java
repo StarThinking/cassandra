@@ -165,10 +165,10 @@ public class DatabaseDescriptor
                                        ? new CommitLogSegmentManagerCDC(c, DatabaseDescriptor.getCommitLogLocation())
                                        : new CommitLogSegmentManagerStandard(c, DatabaseDescriptor.getCommitLogLocation());
 
-    private static int updateComponentId(long pid) {
+    private static int updateComponentId(long pid, String componentType) {
         int lineCount = 0;
         try {
-            final String myIdPath = "/tmp/my_id.txt";
+            final String myIdPath = "/tmp/my_" + componentType + "_id.txt";
             File myIdPathFile = new File(myIdPath);
             BufferedWriter writer = new BufferedWriter(new FileWriter(myIdPathFile, true));
             writer.write(pid + "\n");
@@ -202,7 +202,7 @@ public class DatabaseDescriptor
             writer.close();
             // update component type and id
             Config.componentType = "Daemon";
-            Config.componentId = updateComponentId(pid);
+            Config.componentId = updateComponentId(pid, Config.componentType);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -248,7 +248,7 @@ public class DatabaseDescriptor
             writer.close();
             // update component type and id
             Config.componentType = "Tool";
-            Config.componentId = updateComponentId(pid);
+            Config.componentId = updateComponentId(pid, Config.componentType);
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -306,7 +306,7 @@ public class DatabaseDescriptor
             writer.close();
             // update component type and id
             Config.componentType = "Client";
-            Config.componentId = updateComponentId(pid);
+            Config.componentId = updateComponentId(pid, Config.componentType);
         } catch(Exception e) {
             e.printStackTrace();
         }
