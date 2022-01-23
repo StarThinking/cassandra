@@ -56,7 +56,7 @@ import java.util.HashSet;
  */
 public class Config
 {
-    private static Map<String, Set<String>> zbGetBooleanCache = new HashMap<String, Set<String>>();
+    private static Map<String, Set<String>> zbGetCache = new HashMap<String, Set<String>>();
     public static String componentType = "";
     public static int componentId = 0;
 
@@ -70,7 +70,7 @@ public class Config
             realValue = Boolean.parseBoolean(confAgentRet);
             
             // print only if para,value pair not processed before
-            Set<String> hasKey = Config.zbGetBooleanCache.get(paraName);
+            Set<String> hasKey = Config.zbGetCache.get(paraName);
             if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
                 String jvmName = ManagementFactory.getRuntimeMXBean().getName();
                 long pid = Long.parseLong(jvmName.split("@")[0]);
@@ -81,8 +81,8 @@ public class Config
                 writer.close();    
             }
             
-            Config.zbGetBooleanCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetBooleanCache.get(paraName).add(String.valueOf(realValue));
+            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
+            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
             //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + realValue);
         } catch(Exception e) {
             e.printStackTrace();
@@ -93,6 +93,38 @@ public class Config
     }
     
     public int zbGetInt(String paraName) {
+        int realValue = 0;
+        try {
+            Field privateField = Config.class.getDeclaredField(paraName);
+            privateField.setAccessible(true);
+            int fieldValue = (Integer) privateField.get(this);
+            String confAgentRet = ConfAgent.whichV(paraName, String.valueOf(fieldValue), componentType, componentId);
+            realValue = Integer.parseInt(confAgentRet);
+            
+            // print only if para,value pair not processed before
+            Set<String> hasKey = Config.zbGetCache.get(paraName);
+            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
+                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+                long pid = Long.parseLong(jvmName.split("@")[0]);
+                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+                //writer.write("zbGetInt " + pid + " " + paraName + " " + realValue + "\n");
+                writer.write("zbGetInt " + pid + " " + componentType + "." + componentId
+                    + " " + paraName + " " + realValue + "\n");
+                writer.close();    
+            }
+            
+            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
+            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
+            //logger.warn("[msx] zbGetInt " + pid + " " + paraName + " " + realValue);
+        } catch(Exception e) {
+            e.printStackTrace();
+            logger.warn("[msx] error happens in zbGetInt");
+            System.exit(1);
+        }
+        return realValue;
+    }
+    
+    /*public int zbGetInt(String paraName) {
         int fieldValue = 0;
         try {
             Field privateField = Config.class.getDeclaredField(paraName);
@@ -105,8 +137,7 @@ public class Config
         }
         logger.warn("[msx] zbGetInt return " + fieldValue + " for para " + paraName);
         return fieldValue;
-    }
-
+    }*/
 
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
