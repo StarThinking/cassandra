@@ -575,13 +575,13 @@ public class DatabaseDescriptor
         checkValidForByteConversion(conf.native_transport_max_frame_size_in_mb,
                                     "native_transport_max_frame_size_in_mb", ByteUnit.MEBI_BYTES);
 
-        checkValidForByteConversion(conf.column_index_size_in_kb,
+        checkValidForByteConversion(conf.zbGetInt("column_index_size_in_kb"),
                                     "column_index_size_in_kb", ByteUnit.KIBI_BYTES);
 
-        checkValidForByteConversion(conf.column_index_cache_size_in_kb,
+        checkValidForByteConversion(conf.zbGetInt("column_index_cache_size_in_kb"),
                                     "column_index_cache_size_in_kb", ByteUnit.KIBI_BYTES);
 
-        checkValidForByteConversion(conf.batch_size_warn_threshold_in_kb,
+        checkValidForByteConversion(conf.zbGetInt("batch_size_warn_threshold_in_kb"),
                                     "batch_size_warn_threshold_in_kb", ByteUnit.KIBI_BYTES);
 
         if (conf.native_transport_max_negotiable_protocol_version != null)
@@ -643,7 +643,7 @@ public class DatabaseDescriptor
                 conf.cdc_raw_directory = storagedirFor("cdc_raw");
             }
 
-            if (conf.cdc_total_space_in_mb == 0)
+            if (conf.zbGetInt("cdc_total_space_in_mb") == 0)
             {
                 final int preferredSizeInMB = 4096;
                 try
@@ -824,16 +824,16 @@ public class DatabaseDescriptor
         if (conf.user_defined_function_fail_timeout < conf.user_defined_function_warn_timeout)
             throw new ConfigurationException("user_defined_function_warn_timeout must less than user_defined_function_fail_timeout", false);
 
-        if (conf.commitlog_segment_size_in_mb <= 0)
+        if (conf.zbGetInt("commitlog_segment_size_in_mb") <= 0)
             throw new ConfigurationException("commitlog_segment_size_in_mb must be positive, but was "
-                    + conf.commitlog_segment_size_in_mb, false);
-        else if (conf.commitlog_segment_size_in_mb >= 2048)
+                    + conf.zbGetInt("commitlog_segment_size_in_mb"), false);
+        else if (conf.zbGetInt("commitlog_segment_size_in_mb") >= 2048)
             throw new ConfigurationException("commitlog_segment_size_in_mb must be smaller than 2048, but was "
-                    + conf.commitlog_segment_size_in_mb, false);
+                    + conf.zbGetInt("commitlog_segment_size_in_mb"), false);
 
         if (conf.max_mutation_size_in_kb == null)
-            conf.max_mutation_size_in_kb = conf.commitlog_segment_size_in_mb * 1024 / 2;
-        else if (conf.commitlog_segment_size_in_mb * 1024 < 2 * conf.max_mutation_size_in_kb)
+            conf.max_mutation_size_in_kb = conf.zbGetInt("commitlog_segment_size_in_mb") * 1024 / 2;
+        else if (conf.zbGetInt("commitlog_segment_size_in_mb") * 1024 < 2 * conf.max_mutation_size_in_kb)
             throw new ConfigurationException("commitlog_segment_size_in_mb must be at least twice the size of max_mutation_size_in_kb / 1024", false);
 
         // native transport encryption options
@@ -1515,12 +1515,12 @@ public class DatabaseDescriptor
 
     public static int getColumnIndexSize()
     {
-        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.column_index_size_in_kb);
+        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("column_index_size_in_kb"));
     }
 
     public static int getColumnIndexSizeInKB()
     {
-        return conf.column_index_size_in_kb;
+        return conf.zbGetInt("column_index_size_in_kb");
     }
 
     @VisibleForTesting
@@ -1532,12 +1532,12 @@ public class DatabaseDescriptor
 
     public static int getColumnIndexCacheSize()
     {
-        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.column_index_cache_size_in_kb);
+        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("column_index_cache_size_in_kb"));
     }
 
     public static int getColumnIndexCacheSizeInKB()
     {
-        return conf.column_index_cache_size_in_kb;
+        return conf.zbGetInt("column_index_cache_size_in_kb");
     }
 
     public static void setColumnIndexCacheSize(int val)
@@ -1548,22 +1548,22 @@ public class DatabaseDescriptor
 
     public static int getBatchSizeWarnThreshold()
     {
-        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.batch_size_warn_threshold_in_kb);
+        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("batch_size_warn_threshold_in_kb"));
     }
 
     public static int getBatchSizeWarnThresholdInKB()
     {
-        return conf.batch_size_warn_threshold_in_kb;
+        return conf.zbGetInt("batch_size_warn_threshold_in_kb");
     }
 
     public static long getBatchSizeFailThreshold()
     {
-        return ByteUnit.KIBI_BYTES.toBytes(conf.batch_size_fail_threshold_in_kb);
+        return ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("batch_size_fail_threshold_in_kb"));
     }
 
     public static int getBatchSizeFailThresholdInKB()
     {
-        return conf.batch_size_fail_threshold_in_kb;
+        return conf.zbGetInt("batch_size_fail_threshold_in_kb");
     }
 
     public static int getUnloggedBatchAcrossPartitionsWarnThreshold()
@@ -1594,7 +1594,7 @@ public class DatabaseDescriptor
 
     public static Integer getAllocateTokensForLocalRf()
     {
-        return conf.allocate_tokens_for_local_replication_factor;
+        return conf.zbGetInt("allocate_tokens_for_local_replication_factor");
     }
 
     public static Collection<String> tokensFromString(String tokenString)
@@ -2067,7 +2067,7 @@ public class DatabaseDescriptor
      */
     public static int getCommitLogSegmentSize()
     {
-        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.commitlog_segment_size_in_mb);
+        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("commitlog_segment_size_in_mb"));
     }
 
     public static void setCommitLogSegmentSize(int sizeMegabytes)
@@ -2601,7 +2601,7 @@ public class DatabaseDescriptor
 
     public static int getBatchlogReplayThrottleInKB()
     {
-        return conf.batchlog_replay_throttle_in_kb;
+        return conf.zbGetInt("batchlog_replay_throttle_in_kb");
     }
 
     public static void setBatchlogReplayThrottleInKB(int throttleInKB)
@@ -2811,7 +2811,7 @@ public class DatabaseDescriptor
 
     public static int getCacheLoadTimeout()
     {
-        return conf.cache_load_timeout_seconds;
+        return conf.zbGetInt("cache_load_timeout_seconds");
     }
 
     @VisibleForTesting
@@ -3088,7 +3088,7 @@ public class DatabaseDescriptor
 
     public static int getCDCSpaceInMB()
     {
-        return conf.cdc_total_space_in_mb;
+        return conf.zbGetInt("cdc_total_space_in_mb");
     }
 
     @VisibleForTesting
@@ -3099,7 +3099,7 @@ public class DatabaseDescriptor
 
     public static int getCDCDiskCheckInterval()
     {
-        return conf.cdc_free_space_check_interval_ms;
+        return conf.zbGetInt("cdc_free_space_check_interval_ms");
     }
 
     @VisibleForTesting
