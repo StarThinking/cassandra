@@ -461,12 +461,18 @@ public class EncryptionOptions
 
     public static class ServerEncryptionOptions extends EncryptionOptions
     {
+        public InternodeEncryption zbGetInternodeEncryption(String paraName) {
+            String confAgentRet = ConfAgent.whichV(paraName, this.internode_encryption.name(), Config.componentType, Config.componentId);
+            InternodeEncryption realValue = InternodeEncryption.valueOf(confAgentRet);
+            return realValue;
+        }
+
         public enum InternodeEncryption
         {
             all, none, dc, rack
         }
 
-        public final InternodeEncryption internode_encryption;
+        public InternodeEncryption internode_encryption;
         public final boolean enable_legacy_ssl_storage_port;
 
         public ServerEncryptionOptions()
@@ -506,14 +512,15 @@ public class EncryptionOptions
         {
             super.applyConfig();
 
-            isEnabled = this.internode_encryption != InternodeEncryption.none;
+            // msx
+            isEnabled = zbGetInternodeEncryption("internode_encryption") != InternodeEncryption.none;
 
             if (this.enabled != null && this.enabled && !isEnabled)
             {
                 logger.warn("Setting server_encryption_options.enabled has no effect, use internode_encryption");
             }
 
-            if (require_client_auth && (internode_encryption == InternodeEncryption.rack || internode_encryption == InternodeEncryption.dc))
+            if (require_client_auth && (zbGetInternodeEncryption("internode_encryption") == InternodeEncryption.rack || zbGetInternodeEncryption("internode_encryption") == InternodeEncryption.dc))
             {
                 logger.warn("Setting require_client_auth is incompatible with 'rack' and 'dc' internode_encryption values."
                           + " It is possible for an internode connection to pretend to be in the same rack/dc by spoofing"
@@ -524,7 +531,7 @@ public class EncryptionOptions
 
             // regardless of the optional flag, if the internode encryption is set to rack or dc
             // it must be optional so that unencrypted connections within the rack or dc can be established.
-            isOptional = super.isOptional || internode_encryption == InternodeEncryption.rack || internode_encryption == InternodeEncryption.dc;
+            isOptional = super.isOptional || zbGetInternodeEncryption("internode_encryption") == InternodeEncryption.rack || zbGetInternodeEncryption("internode_encryption") == InternodeEncryption.dc;
 
             return this;
         }
@@ -532,7 +539,7 @@ public class EncryptionOptions
         public boolean shouldEncrypt(InetAddressAndPort endpoint)
         {
             IEndpointSnitch snitch = DatabaseDescriptor.getEndpointSnitch();
-            switch (internode_encryption)
+            switch (zbGetInternodeEncryption("internode_encryption"))
             {
                 case none:
                     return false; // if nothing needs to be encrypted then return immediately.
@@ -566,49 +573,49 @@ public class EncryptionOptions
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withKeyStorePassword(String keystore_password)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withTrustStore(String truststore)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withTrustStorePassword(String truststore_password)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withCipherSuites(List<String> cipher_suites)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withCipherSuites(String ... cipher_suites)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, ImmutableList.copyOf(cipher_suites),
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withProtocol(String protocol)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withAcceptedProtocols(List<String> accepted_protocols)
@@ -616,42 +623,42 @@ public class EncryptionOptions
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols == null ? null : ImmutableList.copyOf(accepted_protocols),
                                                algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withAlgorithm(String algorithm)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withStoreType(String store_type)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withRequireClientAuth(boolean require_client_auth)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withRequireEndpointVerification(boolean require_endpoint_verification)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withOptional(boolean optional)
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
         public ServerEncryptionOptions withInternodeEncryption(InternodeEncryption internode_encryption)
@@ -665,7 +672,7 @@ public class EncryptionOptions
         {
             return new ServerEncryptionOptions(keystore, keystore_password, truststore, truststore_password, cipher_suites,
                                                protocol, accepted_protocols, algorithm, store_type, require_client_auth, require_endpoint_verification,
-                                               optional, internode_encryption, enable_legacy_ssl_storage_port).applyConfigInternal();
+                                               optional, zbGetInternodeEncryption("internode_encryption"), enable_legacy_ssl_storage_port).applyConfigInternal();
         }
 
     }

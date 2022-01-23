@@ -172,7 +172,7 @@ final class SettingsTable extends AbstractVirtualTable
         if (value instanceof EncryptionOptions.ServerEncryptionOptions)
         {
             EncryptionOptions.ServerEncryptionOptions server = (EncryptionOptions.ServerEncryptionOptions) value;
-            result.row(f.getName() + "_internode_encryption").column(VALUE, server.internode_encryption.toString());
+            result.row(f.getName() + "_internode_encryption").column(VALUE, server.zbGetInternodeEncryption("internode_encryption").toString());
             result.row(f.getName() + "_legacy_ssl_storage_port").column(VALUE, Boolean.toString(server.enable_legacy_ssl_storage_port));
         }
     }

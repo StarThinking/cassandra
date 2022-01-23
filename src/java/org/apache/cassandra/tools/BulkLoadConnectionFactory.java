@@ -46,7 +46,7 @@ public class BulkLoadConnectionFactory extends DefaultConnectionFactory implemen
         // When 'all', 'dc' and 'rack', server nodes always have SSL port open, and since thin client like sstableloader
         // does not know which node is in which dc/rack, connecting to SSL port is always the option.
 
-        if (encryptionOptions != null && encryptionOptions.internode_encryption != EncryptionOptions.ServerEncryptionOptions.InternodeEncryption.none)
+        if (encryptionOptions != null && encryptionOptions.zbGetInternodeEncryption("internode_encryption") != EncryptionOptions.ServerEncryptionOptions.InternodeEncryption.none)
             template = template.withConnectTo(template.to.withPort(secureStoragePort));
 
         return super.createConnection(template, messagingVersion);
