@@ -496,7 +496,7 @@ public class DatabaseDescriptor
             logger.info("DiskAccessMode is {}, indexAccessMode is {}", conf.disk_access_mode, indexAccessMode);
         }
 
-        if (conf.gc_warn_threshold_in_ms < 0)
+        if (conf.zbGetInt("gc_warn_threshold_in_ms") < 0)
         {
             throw new ConfigurationException("gc_warn_threshold_in_ms must be a positive integer");
         }
@@ -881,13 +881,13 @@ public class DatabaseDescriptor
         Integer maxMessageSize = conf.internode_max_message_size_in_bytes;
         if (maxMessageSize != null)
         {
-            if (maxMessageSize > conf.internode_application_receive_queue_reserve_endpoint_capacity_in_bytes)
+            if (maxMessageSize > conf.zbGetInt("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_receive_queue_reserve_endpoint_capacity_in_bytes", false);
 
-            if (maxMessageSize > conf.internode_application_receive_queue_reserve_global_capacity_in_bytes)
+            if (maxMessageSize > conf.zbGetInt("internode_application_receive_queue_reserve_global_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_receive_queue_reserve_global_capacity_in_bytes", false);
 
-            if (maxMessageSize > conf.internode_application_send_queue_reserve_endpoint_capacity_in_bytes)
+            if (maxMessageSize > conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_send_queue_reserve_endpoint_capacity_in_bytes", false);
 
             if (maxMessageSize > conf.internode_application_send_queue_reserve_global_capacity_in_bytes)
@@ -896,8 +896,8 @@ public class DatabaseDescriptor
         else
         {
             conf.internode_max_message_size_in_bytes =
-                Math.min(conf.internode_application_receive_queue_reserve_endpoint_capacity_in_bytes,
-                         conf.internode_application_send_queue_reserve_endpoint_capacity_in_bytes);
+                Math.min(conf.zbGetInt("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes"),
+                         conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"));
         }
 
         validateMaxConcurrentAutoUpgradeTasksConf(conf.max_concurrent_automatic_sstable_upgrades);
@@ -1912,7 +1912,7 @@ public class DatabaseDescriptor
 
     public static int getInterDCStreamThroughputOutboundMegabitsPerSec()
     {
-        return conf.inter_dc_stream_throughput_outbound_megabits_per_sec;
+        return conf.zbGetInt("inter_dc_stream_throughput_outbound_megabits_per_sec");
     }
 
     public static void setInterDCStreamThroughputOutboundMegabitsPerSec(int value)
@@ -2187,12 +2187,12 @@ public class DatabaseDescriptor
 
     public static int getInternodeApplicationSendQueueCapacityInBytes()
     {
-        return conf.internode_application_send_queue_capacity_in_bytes;
+        return conf.zbGetInt("internode_application_send_queue_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationSendQueueReserveEndpointCapacityInBytes()
     {
-        return conf.internode_application_send_queue_reserve_endpoint_capacity_in_bytes;
+        return conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationSendQueueReserveGlobalCapacityInBytes()
@@ -2202,17 +2202,17 @@ public class DatabaseDescriptor
 
     public static int getInternodeApplicationReceiveQueueCapacityInBytes()
     {
-        return conf.internode_application_receive_queue_capacity_in_bytes;
+        return conf.zbGetInt("internode_application_receive_queue_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationReceiveQueueReserveEndpointCapacityInBytes()
     {
-        return conf.internode_application_receive_queue_reserve_endpoint_capacity_in_bytes;
+        return conf.zbGetInt("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationReceiveQueueReserveGlobalCapacityInBytes()
     {
-        return conf.internode_application_receive_queue_reserve_global_capacity_in_bytes;
+        return conf.zbGetInt("internode_application_receive_queue_reserve_global_capacity_in_bytes");
     }
 
     public static int getInternodeTcpConnectTimeoutInMS()
@@ -2591,7 +2591,7 @@ public class DatabaseDescriptor
 
     public static int getHintedHandoffThrottleInKB()
     {
-        return conf.hinted_handoff_throttle_in_kb;
+        return conf.zbGetInt("hinted_handoff_throttle_in_kb");
     }
 
     public static void setHintedHandoffThrottleInKB(int throttleInKB)
@@ -2616,7 +2616,7 @@ public class DatabaseDescriptor
 
     public static int getHintsFlushPeriodInMS()
     {
-        return conf.hints_flush_period_in_ms;
+        return conf.zbGetInt("hints_flush_period_in_ms");
     }
 
     public static long getMaxHintsFileSize()
@@ -2925,7 +2925,7 @@ public class DatabaseDescriptor
 
     public static int getIndexSummaryResizeIntervalInMinutes()
     {
-        return conf.index_summary_resize_interval_in_minutes;
+        return conf.zbGetInt("index_summary_resize_interval_in_minutes");
     }
 
     public static boolean hasLargeAddressSpace()
@@ -3067,7 +3067,7 @@ public class DatabaseDescriptor
 
     public static long getGCWarnThreshold()
     {
-        return conf.gc_warn_threshold_in_ms;
+        return conf.zbGetInt("gc_warn_threshold_in_ms");
     }
 
     public static boolean isCDCEnabled()
