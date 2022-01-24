@@ -469,7 +469,7 @@ public class LoaderOptions
                     if (config.native_transport_port_ssl != null && (config.client_encryption_options.isEnabled() || clientEncOptions.isEnabled()))
                         nativePort = config.native_transport_port_ssl;
                     else
-                        nativePort = config.native_transport_port;
+                        nativePort = config.zbGetInt("native_transport_port");
                 }
 
                 if (cmd.hasOption(SSL_TRUSTSTORE))

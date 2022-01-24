@@ -534,20 +534,20 @@ public class DatabaseDescriptor
         if (conf.file_cache_round_up == null)
             conf.file_cache_round_up = conf.disk_optimization_strategy == Config.DiskOptimizationStrategy.spinning;
 
-        if (conf.memtable_offheap_space_in_mb == null)
+        if (conf.zbGetInteger("memtable_offheap_space_in_mb") == null)
             conf.memtable_offheap_space_in_mb = (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576));
-        if (conf.memtable_offheap_space_in_mb < 0)
-            throw new ConfigurationException("memtable_offheap_space_in_mb must be positive, but was " + conf.memtable_offheap_space_in_mb, false);
+        if (conf.zbGetInteger("memtable_offheap_space_in_mb") < 0)
+            throw new ConfigurationException("memtable_offheap_space_in_mb must be positive, but was " + conf.zbGetInteger("memtable_offheap_space_in_mb"), false);
         // for the moment, we default to twice as much on-heap space as off-heap, as heap overhead is very large
-        if (conf.memtable_heap_space_in_mb == null)
+        if (conf.zbGetInteger("memtable_heap_space_in_mb") == null)
             conf.memtable_heap_space_in_mb = (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576));
-        if (conf.memtable_heap_space_in_mb <= 0)
-            throw new ConfigurationException("memtable_heap_space_in_mb must be positive, but was " + conf.memtable_heap_space_in_mb, false);
-        logger.info("Global memtable on-heap threshold is enabled at {}MB", conf.memtable_heap_space_in_mb);
-        if (conf.memtable_offheap_space_in_mb == 0)
+        if (conf.zbGetInteger("memtable_heap_space_in_mb") <= 0)
+            throw new ConfigurationException("memtable_heap_space_in_mb must be positive, but was " + conf.zbGetInteger("memtable_heap_space_in_mb"), false);
+        logger.info("Global memtable on-heap threshold is enabled at {}MB", conf.zbGetInteger("memtable_heap_space_in_mb"));
+        if (conf.zbGetInteger("memtable_offheap_space_in_mb") == 0)
             logger.info("Global memtable off-heap threshold is disabled, HeapAllocator will be used instead");
         else
-            logger.info("Global memtable off-heap threshold is enabled at {}MB", conf.memtable_offheap_space_in_mb);
+            logger.info("Global memtable off-heap threshold is enabled at {}MB", conf.zbGetInteger("memtable_offheap_space_in_mb"));
 
         if (conf.repair_session_max_tree_depth != null)
         {
@@ -572,7 +572,7 @@ public class DatabaseDescriptor
 
         checkForLowestAcceptedTimeouts(conf);
 
-        checkValidForByteConversion(conf.native_transport_max_frame_size_in_mb,
+        checkValidForByteConversion(conf.zbGetInt("native_transport_max_frame_size_in_mb"),
                                     "native_transport_max_frame_size_in_mb", ByteUnit.MEBI_BYTES);
 
         checkValidForByteConversion(conf.zbGetInt("column_index_size_in_kb"),
@@ -720,17 +720,17 @@ public class DatabaseDescriptor
         if (conf.hints_directory.equals(conf.saved_caches_directory))
             throw new ConfigurationException("saved_caches_directory must not be the same as the hints_directory", false);
 
-        if (conf.memtable_flush_writers == 0)
+        if (conf.zbGetInt("memtable_flush_writers") == 0)
         {
             conf.memtable_flush_writers = conf.data_file_directories.length == 1 ? 2 : 1;
         }
 
-        if (conf.memtable_flush_writers < 1)
-            throw new ConfigurationException("memtable_flush_writers must be at least 1, but was " + conf.memtable_flush_writers, false);
+        if (conf.zbGetInt("memtable_flush_writers") < 1)
+            throw new ConfigurationException("memtable_flush_writers must be at least 1, but was " + conf.zbGetInt("memtable_flush_writers"), false);
 
         if (conf.memtable_cleanup_threshold == null)
         {
-            conf.memtable_cleanup_threshold = (float) (1.0 / (1 + conf.memtable_flush_writers));
+            conf.memtable_cleanup_threshold = (float) (1.0 / (1 + conf.zbGetInt("memtable_flush_writers")));
         }
         else
         {
@@ -842,7 +842,7 @@ public class DatabaseDescriptor
             conf.client_encryption_options.applyConfig();
 
             if (conf.native_transport_port_ssl != null
-                && conf.native_transport_port_ssl != conf.native_transport_port
+                && conf.native_transport_port_ssl != conf.zbGetInt("native_transport_port")
                 && conf.client_encryption_options.tlsEncryptionPolicy() == EncryptionOptions.TlsEncryptionPolicy.UNENCRYPTED)
             {
                 throw new ConfigurationException("Encryption must be enabled in client_encryption_options for native_transport_port_ssl", false);
@@ -852,11 +852,11 @@ public class DatabaseDescriptor
         if (conf.snapshot_links_per_second < 0)
             throw new ConfigurationException("snapshot_links_per_second must be >= 0");
 
-        if (conf.max_value_size_in_mb <= 0)
+        if (conf.zbGetInt("max_value_size_in_mb") <= 0)
             throw new ConfigurationException("max_value_size_in_mb must be positive", false);
-        else if (conf.max_value_size_in_mb >= 2048)
+        else if (conf.zbGetInt("max_value_size_in_mb") >= 2048)
             throw new ConfigurationException("max_value_size_in_mb must be smaller than 2048, but was "
-                    + conf.max_value_size_in_mb, false);
+                    + conf.zbGetInt("max_value_size_in_mb"), false);
 
         switch (conf.disk_optimization_strategy)
         {
@@ -1433,7 +1433,7 @@ public class DatabaseDescriptor
 
     public static int getMaxValueSize()
     {
-        return conf.max_value_size_in_mb * 1024 * 1024;
+        return conf.zbGetInt("max_value_size_in_mb") * 1024 * 1024;
     }
 
     public static void setMaxValueSize(int maxValueSizeInBytes)
@@ -1839,7 +1839,7 @@ public class DatabaseDescriptor
 
     public static int getFlushWriters()
     {
-        return conf.memtable_flush_writers;
+        return conf.zbGetInt("memtable_flush_writers");
     }
 
     public static int getConcurrentCompactors()
@@ -2267,7 +2267,7 @@ public class DatabaseDescriptor
      */
     public static int getNativeTransportPort()
     {
-        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "native_transport_port", Integer.toString(conf.native_transport_port)));
+        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "native_transport_port", Integer.toString(conf.zbGetInt("native_transport_port"))));
     }
 
     @VisibleForTesting
@@ -2289,7 +2289,7 @@ public class DatabaseDescriptor
 
     public static int getNativeTransportMaxThreads()
     {
-        return conf.native_transport_max_threads;
+        return conf.zbGetInt("native_transport_max_threads");
     }
 
     public static void setNativeTransportMaxThreads(int max_threads)
@@ -2299,7 +2299,7 @@ public class DatabaseDescriptor
 
     public static int getNativeTransportMaxFrameSize()
     {
-        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.native_transport_max_frame_size_in_mb);
+        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("native_transport_max_frame_size_in_mb"));
     }
 
     public static long getNativeTransportMaxConcurrentConnections()
@@ -2525,7 +2525,7 @@ public class DatabaseDescriptor
 
     public static int getMaxHintWindow()
     {
-        return conf.max_hint_window_in_ms;
+        return conf.zbGetInt("max_hint_window_in_ms");
     }
 
     public static File getHintsDirectory()
@@ -2611,7 +2611,7 @@ public class DatabaseDescriptor
 
     public static int getMaxHintsDeliveryThreads()
     {
-        return conf.max_hints_delivery_threads;
+        return conf.zbGetInt("max_hints_delivery_threads");
     }
 
     public static int getHintsFlushPeriodInMS()
@@ -2621,7 +2621,7 @@ public class DatabaseDescriptor
 
     public static long getMaxHintsFileSize()
     {
-        return  ByteUnit.MEBI_BYTES.toBytes(conf.max_hints_file_size_in_mb);
+        return  ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("max_hints_file_size_in_mb"));
     }
 
     public static ParameterizedClass getHintsCompression()
@@ -2872,12 +2872,12 @@ public class DatabaseDescriptor
 
     public static long getMemtableHeapSpaceInMb()
     {
-        return conf.memtable_heap_space_in_mb;
+        return conf.zbGetInteger("memtable_heap_space_in_mb");
     }
 
     public static long getMemtableOffheapSpaceInMb()
     {
-        return conf.memtable_offheap_space_in_mb;
+        return conf.zbGetInteger("memtable_offheap_space_in_mb");
     }
 
     public static Config.MemtableAllocationType getMemtableAllocationType()
