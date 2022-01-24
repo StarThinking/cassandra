@@ -524,7 +524,7 @@ public class DatabaseDescriptor
         if (conf.concurrent_replicates != null)
             logger.warn("concurrent_replicates has been deprecated and should be removed from cassandra.yaml");
 
-        if (conf.networking_cache_size_in_mb == null)
+        if (conf.zbGetInteger("networking_cache_size_in_mb") == null)
             conf.networking_cache_size_in_mb = Math.min(128, (int) (Runtime.getRuntime().maxMemory() / (16 * 1048576)));
 
         if (conf.zbGetInteger("file_cache_size_in_mb") == null)
@@ -562,13 +562,13 @@ public class DatabaseDescriptor
             conf.repair_session_max_tree_depth = 20;
         }
 
-        if (conf.repair_session_space_in_mb == null)
+        if (conf.zbGetInteger("repair_session_space_in_mb") == null)
             conf.repair_session_space_in_mb = Math.max(1, (int) (Runtime.getRuntime().maxMemory() / (16 * 1048576)));
 
-        if (conf.repair_session_space_in_mb < 1)
-            throw new ConfigurationException("repair_session_space_in_mb must be > 0, but was " + conf.repair_session_space_in_mb);
-        else if (conf.repair_session_space_in_mb > (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576)))
-            logger.warn("A repair_session_space_in_mb of " + conf.repair_session_space_in_mb + " megabytes is likely to cause heap pressure");
+        if (conf.zbGetInteger("repair_session_space_in_mb") < 1)
+            throw new ConfigurationException("repair_session_space_in_mb must be > 0, but was " + conf.zbGetInteger("repair_session_space_in_mb"));
+        else if (conf.zbGetInteger("repair_session_space_in_mb") > (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576)))
+            logger.warn("A repair_session_space_in_mb of " + conf.zbGetInteger("repair_session_space_in_mb") + " megabytes is likely to cause heap pressure");
 
         checkForLowestAcceptedTimeouts(conf);
 
@@ -756,7 +756,7 @@ public class DatabaseDescriptor
         if (conf.zbGetInt("concurrent_materialized_view_builders") <= 0)
             throw new ConfigurationException("concurrent_materialized_view_builders should be strictly greater than 0, but was " + conf.zbGetInt("concurrent_materialized_view_builders"), false);
 
-        if (conf.num_tokens != null && conf.num_tokens > MAX_NUM_TOKENS)
+        if (conf.zbGetInteger("num_tokens") != null && conf.zbGetInteger("num_tokens") > MAX_NUM_TOKENS)
             throw new ConfigurationException(String.format("A maximum number of %d tokens per node is supported", MAX_NUM_TOKENS), false);
 
         try
@@ -841,8 +841,8 @@ public class DatabaseDescriptor
         {
             conf.client_encryption_options.applyConfig();
 
-            if (conf.native_transport_port_ssl != null
-                && conf.native_transport_port_ssl != conf.zbGetInt("native_transport_port")
+            if (conf.zbGetInteger("native_transport_port_ssl") != null
+                && conf.zbGetInteger("native_transport_port_ssl") != conf.zbGetInt("native_transport_port")
                 && conf.client_encryption_options.tlsEncryptionPolicy() == EncryptionOptions.TlsEncryptionPolicy.UNENCRYPTED)
             {
                 throw new ConfigurationException("Encryption must be enabled in client_encryption_options for native_transport_port_ssl", false);
@@ -1157,7 +1157,7 @@ public class DatabaseDescriptor
         if (conf.initial_token != null)
         {
             Collection<String> tokens = tokensFromString(conf.initial_token);
-            if (conf.num_tokens == null)
+            if (conf.zbGetInteger("num_tokens") == null)
             {
                 if (tokens.size() == 1)
                     conf.num_tokens = 1;
@@ -1165,18 +1165,18 @@ public class DatabaseDescriptor
                     throw new ConfigurationException("initial_token was set but num_tokens is not!", false);
             }
 
-            if (tokens.size() != conf.num_tokens)
+            if (tokens.size() != conf.zbGetInteger("num_tokens"))
             {
                 throw new ConfigurationException(String.format("The number of initial tokens (by initial_token) specified (%s) is different from num_tokens value (%s)",
                                                                tokens.size(),
-                                                               conf.num_tokens),
+                                                               conf.zbGetInteger("num_tokens")),
                                                  false);
             }
 
             for (String token : tokens)
                 partitioner.getTokenFactory().validate(token);
         }
-        else if (conf.num_tokens == null)
+        else if (conf.zbGetInteger("num_tokens") == null)
         {
             conf.num_tokens = 1;
         }
@@ -1337,7 +1337,7 @@ public class DatabaseDescriptor
 
     public static int getPermissionsValidity()
     {
-        return conf.permissions_validity_in_ms;
+        return conf.zbGetInt("permissions_validity_in_ms");
     }
 
     public static void setPermissionsValidity(int timeout)
@@ -1347,9 +1347,9 @@ public class DatabaseDescriptor
 
     public static int getPermissionsUpdateInterval()
     {
-        return conf.permissions_update_interval_in_ms == -1
-             ? conf.permissions_validity_in_ms
-             : conf.permissions_update_interval_in_ms;
+        return conf.zbGetInt("permissions_update_interval_in_ms") == -1
+             ? conf.zbGetInt("permissions_validity_in_ms")
+             : conf.zbGetInt("permissions_update_interval_in_ms");
     }
 
     public static void setPermissionsUpdateInterval(int updateInterval)
@@ -1369,7 +1369,7 @@ public class DatabaseDescriptor
 
     public static int getRolesValidity()
     {
-        return conf.roles_validity_in_ms;
+        return conf.zbGetInt("roles_validity_in_ms");
     }
 
     public static void setRolesValidity(int validity)
@@ -1379,9 +1379,9 @@ public class DatabaseDescriptor
 
     public static int getRolesUpdateInterval()
     {
-        return conf.roles_update_interval_in_ms == -1
-             ? conf.roles_validity_in_ms
-             : conf.roles_update_interval_in_ms;
+        return conf.zbGetInt("roles_update_interval_in_ms") == -1
+             ? conf.zbGetInt("roles_validity_in_ms")
+             : conf.zbGetInt("roles_update_interval_in_ms");
     }
 
     public static void setRolesUpdateInterval(int interval)
@@ -1608,7 +1608,7 @@ public class DatabaseDescriptor
 
     public static int getNumTokens()
     {
-        return conf.num_tokens;
+        return conf.zbGetInteger("num_tokens");
     }
 
     public static InetAddressAndPort getReplaceAddress()
@@ -2278,7 +2278,7 @@ public class DatabaseDescriptor
 
     public static int getNativeTransportPortSSL()
     {
-        return conf.native_transport_port_ssl == null ? getNativeTransportPort() : conf.native_transport_port_ssl;
+        return conf.zbGetInteger("native_transport_port_ssl") == null ? getNativeTransportPort() : conf.zbGetInteger("native_transport_port_ssl");
     }
 
     @VisibleForTesting
@@ -2384,7 +2384,7 @@ public class DatabaseDescriptor
 
     public static long getPeriodicCommitLogSyncBlock()
     {
-        Integer blockMillis = conf.periodic_commitlog_sync_lag_block_in_ms;
+        Integer blockMillis = conf.zbGetInteger("periodic_commitlog_sync_lag_block_in_ms");
         return blockMillis == null
                ? (long)(getCommitLogSyncPeriod() * 1.5)
                : blockMillis;
@@ -2663,13 +2663,13 @@ public class DatabaseDescriptor
 
     public static int getNetworkingCacheSizeInMB()
     {
-        if (conf.networking_cache_size_in_mb == null)
+        if (conf.zbGetInteger("networking_cache_size_in_mb") == null)
         {
             // In client mode the value is not set.
             assert DatabaseDescriptor.isClientInitialized();
             return 0;
         }
-        return conf.networking_cache_size_in_mb;
+        return conf.zbGetInteger("networking_cache_size_in_mb");
     }
 
     public static boolean getFileCacheRoundUp()
@@ -2786,7 +2786,7 @@ public class DatabaseDescriptor
 
     public static int getRowCacheKeysToSave()
     {
-        return conf.row_cache_keys_to_save;
+        return conf.zbGetInt("row_cache_keys_to_save");
     }
 
     public static long getCounterCacheSizeInMB()
@@ -2903,7 +2903,7 @@ public class DatabaseDescriptor
 
     public static int getRepairSessionSpaceInMegabytes()
     {
-        return conf.repair_session_space_in_mb;
+        return conf.zbGetInteger("repair_session_space_in_mb");
     }
 
     public static void setRepairSessionSpaceInMegabytes(int sizeInMegabytes)
@@ -2912,7 +2912,7 @@ public class DatabaseDescriptor
             throw new ConfigurationException("Cannot set repair_session_space_in_mb to " + sizeInMegabytes +
                                              " < 1 megabyte");
         else if (sizeInMegabytes > (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576)))
-            logger.warn("A repair_session_space_in_mb of " + conf.repair_session_space_in_mb +
+            logger.warn("A repair_session_space_in_mb of " + conf.zbGetInteger("repair_session_space_in_mb") +
                         " megabytes is likely to cause heap pressure.");
 
         conf.repair_session_space_in_mb = sizeInMegabytes;
