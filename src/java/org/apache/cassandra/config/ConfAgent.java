@@ -110,7 +110,7 @@ public class ConfAgent {
         return value;
     }
 
-    public static synchronized String whichV(String para, String v, String componentType, int componentId) {
+    public static synchronized String whichV(String para, String originalV, String componentType, int componentId) {
         // check each task/rule in the htask list
         for (HTask task : h_list) {
             if (para.equals(task.reconf_parameter)) {
@@ -155,8 +155,8 @@ public class ConfAgent {
         }
         
         // when vvmode is none (h_list is empty) or para not included in any htask, return the original value
-        myPrint("parameter " + para + " returns original " + v);
-        return v;
+        myPrint("parameter " + para + " returns original " + originalV);
+        return originalV;
     }
     
     public static void myPrint(String str) { 

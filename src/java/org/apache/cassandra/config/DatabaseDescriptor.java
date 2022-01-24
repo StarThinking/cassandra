@@ -1594,7 +1594,7 @@ public class DatabaseDescriptor
 
     public static Integer getAllocateTokensForLocalRf()
     {
-        return conf.zbGetInt("allocate_tokens_for_local_replication_factor");
+        return conf.zbGetInteger("allocate_tokens_for_local_replication_factor");
     }
 
     public static Collection<String> tokensFromString(String tokenString)
