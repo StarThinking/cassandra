@@ -890,7 +890,7 @@ public class DatabaseDescriptor
             if (maxMessageSize > conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_send_queue_reserve_endpoint_capacity_in_bytes", false);
 
-            if (maxMessageSize > conf.internode_application_send_queue_reserve_global_capacity_in_bytes)
+            if (maxMessageSize > conf.zbGetInt("internode_application_send_queue_reserve_global_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_send_queue_reserve_global_capacity_in_bytes", false);
         }
         else
@@ -900,7 +900,7 @@ public class DatabaseDescriptor
                          conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"));
         }
 
-        validateMaxConcurrentAutoUpgradeTasksConf(conf.max_concurrent_automatic_sstable_upgrades);
+        validateMaxConcurrentAutoUpgradeTasksConf(conf.zbGetInt("max_concurrent_automatic_sstable_upgrades"));
     }
 
     @VisibleForTesting
@@ -2177,12 +2177,12 @@ public class DatabaseDescriptor
 
     public static int getInternodeSocketSendBufferSizeInBytes()
     {
-        return conf.internode_socket_send_buffer_size_in_bytes;
+        return conf.zbGetInt("internode_socket_send_buffer_size_in_bytes");
     }
 
     public static int getInternodeSocketReceiveBufferSizeInBytes()
     {
-        return conf.internode_socket_receive_buffer_size_in_bytes;
+        return conf.zbGetInt("internode_socket_receive_buffer_size_in_bytes");
     }
 
     public static int getInternodeApplicationSendQueueCapacityInBytes()
@@ -2197,7 +2197,7 @@ public class DatabaseDescriptor
 
     public static int getInternodeApplicationSendQueueReserveGlobalCapacityInBytes()
     {
-        return conf.internode_application_send_queue_reserve_global_capacity_in_bytes;
+        return conf.zbGetInt("internode_application_send_queue_reserve_global_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationReceiveQueueCapacityInBytes()
@@ -2217,7 +2217,7 @@ public class DatabaseDescriptor
 
     public static int getInternodeTcpConnectTimeoutInMS()
     {
-        return conf.internode_tcp_connect_timeout_in_ms;
+        return conf.zbGetInt("internode_tcp_connect_timeout_in_ms");
     }
 
     public static void setInternodeTcpConnectTimeoutInMS(int value)
@@ -2227,7 +2227,7 @@ public class DatabaseDescriptor
 
     public static int getInternodeTcpUserTimeoutInMS()
     {
-        return conf.internode_tcp_user_timeout_in_ms;
+        return conf.zbGetInt("internode_tcp_user_timeout_in_ms");
     }
 
     public static void setInternodeTcpUserTimeoutInMS(int value)
@@ -2237,7 +2237,7 @@ public class DatabaseDescriptor
 
     public static int getInternodeStreamingTcpUserTimeoutInMS()
     {
-        return conf.internode_streaming_tcp_user_timeout_in_ms;
+        return conf.zbGetInt("internode_streaming_tcp_user_timeout_in_ms");
     }
 
     public static void setInternodeStreamingTcpUserTimeoutInMS(int value)
@@ -2740,7 +2740,7 @@ public class DatabaseDescriptor
 
     public static int getKeyCacheSavePeriod()
     {
-        return conf.key_cache_save_period;
+        return conf.zbGetInt("key_cache_save_period");
     }
 
     public static void setKeyCacheSavePeriod(int keyCacheSavePeriod)
@@ -2750,7 +2750,7 @@ public class DatabaseDescriptor
 
     public static int getKeyCacheKeysToSave()
     {
-        return conf.key_cache_keys_to_save;
+        return conf.zbGetInt("key_cache_keys_to_save");
     }
 
     public static void setKeyCacheKeysToSave(int keyCacheKeysToSave)
@@ -3177,12 +3177,12 @@ public class DatabaseDescriptor
 
     public static int maxConcurrentAutoUpgradeTasks()
     {
-        return conf.max_concurrent_automatic_sstable_upgrades;
+        return conf.zbGetInt("max_concurrent_automatic_sstable_upgrades");
     }
 
     public static void setMaxConcurrentAutoUpgradeTasks(int value)
     {
-        if (conf.max_concurrent_automatic_sstable_upgrades != value)
+        if (conf.zbGetInt("max_concurrent_automatic_sstable_upgrades") != value)
             logger.debug("Changing max_concurrent_automatic_sstable_upgrades to {}", value);
         validateMaxConcurrentAutoUpgradeTasksConf(value);
         conf.max_concurrent_automatic_sstable_upgrades = value;
@@ -3443,7 +3443,7 @@ public class DatabaseDescriptor
 
     public static int keyspaceCountWarnThreshold()
     {
-        return conf.keyspace_count_warn_threshold;
+        return conf.zbGetInt("keyspace_count_warn_threshold");
     }
 
     public static void setKeyspaceCountWarnThreshold(int value)
