@@ -513,9 +513,9 @@ public class DatabaseDescriptor
             throw new ConfigurationException("concurrent_reads must be at least 2, but was " + conf.zbGetInt("concurrent_reads"), false);
         }
 
-        if (conf.concurrent_writes < 2 && System.getProperty("cassandra.test.fail_mv_locks_count", "").isEmpty())
+        if (conf.zbGetInt("concurrent_writes") < 2 && System.getProperty("cassandra.test.fail_mv_locks_count", "").isEmpty())
         {
-            throw new ConfigurationException("concurrent_writes must be at least 2, but was " + conf.concurrent_writes, false);
+            throw new ConfigurationException("concurrent_writes must be at least 2, but was " + conf.zbGetInt("concurrent_writes"), false);
         }
 
         if (conf.zbGetInt("concurrent_counter_writes") < 2)
@@ -527,7 +527,7 @@ public class DatabaseDescriptor
         if (conf.networking_cache_size_in_mb == null)
             conf.networking_cache_size_in_mb = Math.min(128, (int) (Runtime.getRuntime().maxMemory() / (16 * 1048576)));
 
-        if (conf.file_cache_size_in_mb == null)
+        if (conf.zbGetInteger("file_cache_size_in_mb") == null)
             conf.file_cache_size_in_mb = Math.min(512, (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576)));
 
         // round down for SSDs and round up for spinning disks
@@ -920,7 +920,7 @@ public class DatabaseDescriptor
     @VisibleForTesting
     static void applyRepairCommandPoolSize(Config config)
     {
-        if (config.repair_command_pool_size < 1)
+        if (config.zbGetInt("repair_command_pool_size") < 1)
             config.repair_command_pool_size = config.zbGetInt("concurrent_validations");
     }
 
@@ -1401,7 +1401,7 @@ public class DatabaseDescriptor
 
     public static int getCredentialsValidity()
     {
-        return conf.credentials_validity_in_ms;
+        return conf.zbGetInt("credentials_validity_in_ms");
     }
 
     public static void setCredentialsValidity(int timeout)
@@ -1411,9 +1411,9 @@ public class DatabaseDescriptor
 
     public static int getCredentialsUpdateInterval()
     {
-        return conf.credentials_update_interval_in_ms == -1
-               ? conf.credentials_validity_in_ms
-               : conf.credentials_update_interval_in_ms;
+        return conf.zbGetInt("credentials_update_interval_in_ms") == -1
+               ? conf.zbGetInt("credentials_validity_in_ms")
+               : conf.zbGetInt("credentials_update_interval_in_ms");
     }
 
     public static void setCredentialsUpdateInterval(int updateInterval)
@@ -1797,7 +1797,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentWriters()
     {
-        return conf.concurrent_writes;
+        return conf.zbGetInt("concurrent_writes");
     }
 
     public static void setConcurrentWriters(int concurrent_writers)
@@ -2542,7 +2542,7 @@ public class DatabaseDescriptor
 
     public static int getDynamicUpdateInterval()
     {
-        return conf.dynamic_snitch_update_interval_in_ms;
+        return conf.zbGetInt("dynamic_snitch_update_interval_in_ms");
     }
     public static void setDynamicUpdateInterval(int dynamicUpdateInterval)
     {
@@ -2551,7 +2551,7 @@ public class DatabaseDescriptor
 
     public static int getDynamicResetInterval()
     {
-        return conf.dynamic_snitch_reset_interval_in_ms;
+        return conf.zbGetInt("dynamic_snitch_reset_interval_in_ms");
     }
     public static void setDynamicResetInterval(int dynamicResetInterval)
     {
@@ -2651,14 +2651,14 @@ public class DatabaseDescriptor
 
     public static int getFileCacheSizeInMB()
     {
-        if (conf.file_cache_size_in_mb == null)
+        if (conf.zbGetInteger("file_cache_size_in_mb") == null)
         {
             // In client mode the value is not set.
             assert DatabaseDescriptor.isClientInitialized();
             return 0;
         }
 
-        return conf.file_cache_size_in_mb;
+        return conf.zbGetInteger("file_cache_size_in_mb");
     }
 
     public static int getNetworkingCacheSizeInMB()
@@ -2801,7 +2801,7 @@ public class DatabaseDescriptor
 
     public static int getCounterCacheSavePeriod()
     {
-        return conf.counter_cache_save_period;
+        return conf.zbGetInt("counter_cache_save_period");
     }
 
     public static void setCounterCacheSavePeriod(int counterCacheSavePeriod)
@@ -2822,7 +2822,7 @@ public class DatabaseDescriptor
 
     public static int getCounterCacheKeysToSave()
     {
-        return conf.counter_cache_keys_to_save;
+        return conf.zbGetInt("counter_cache_keys_to_save");
     }
 
     public static void setCounterCacheKeysToSave(int counterCacheKeysToSave)
@@ -3057,7 +3057,7 @@ public class DatabaseDescriptor
 
     public static long getGCLogThreshold()
     {
-        return conf.gc_log_threshold_in_ms;
+        return conf.zbGetInt("gc_log_threshold_in_ms");
     }
 
     public static EncryptionContext getEncryptionContext()
@@ -3140,7 +3140,7 @@ public class DatabaseDescriptor
 
     public static int getRepairCommandPoolSize()
     {
-        return conf.repair_command_pool_size;
+        return conf.zbGetInt("repair_command_pool_size");
     }
 
     public static Config.RepairCommandPoolFullStrategy getRepairCommandPoolFullStrategy()
