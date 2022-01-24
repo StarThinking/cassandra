@@ -1650,12 +1650,12 @@ public class DatabaseDescriptor
 
     public static int getStoragePort()
     {
-        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "storage_port", Integer.toString(conf.storage_port)));
+        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "storage_port", Integer.toString(conf.zbGetInt("storage_port"))));
     }
 
     public static int getSSLStoragePort()
     {
-        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "ssl_storage_port", Integer.toString(conf.ssl_storage_port)));
+        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "ssl_storage_port", Integer.toString(conf.zbGetInt("ssl_storage_port"))));
     }
 
     public static long nativeTransportIdleTimeout()
@@ -1902,7 +1902,7 @@ public class DatabaseDescriptor
 
     public static int getStreamThroughputOutboundMegabitsPerSec()
     {
-        return conf.stream_throughput_outbound_megabits_per_sec;
+        return conf.zbGetInt("stream_throughput_outbound_megabits_per_sec");
     }
 
     public static void setStreamThroughputOutboundMegabitsPerSec(int value)
@@ -2024,7 +2024,7 @@ public class DatabaseDescriptor
 
     public static int getTombstoneWarnThreshold()
     {
-        return conf.tombstone_warn_threshold;
+        return conf.zbGetInt("tombstone_warn_threshold");
     }
 
     public static void setTombstoneWarnThreshold(int threshold)
@@ -2034,7 +2034,7 @@ public class DatabaseDescriptor
 
     public static int getTombstoneFailureThreshold()
     {
-        return conf.tombstone_failure_threshold;
+        return conf.zbGetInt("tombstone_failure_threshold");
     }
 
     public static void setTombstoneFailureThreshold(int threshold)
@@ -2711,7 +2711,7 @@ public class DatabaseDescriptor
 
     public static int getSSTablePreemptiveOpenIntervalInMB()
     {
-        return FBUtilities.isWindows ? -1 : conf.sstable_preemptive_open_interval_in_mb;
+        return FBUtilities.isWindows ? -1 : conf.zbGetInt("sstable_preemptive_open_interval_in_mb");
     }
     public static void setSSTablePreemptiveOpenIntervalInMB(int mb)
     {
@@ -2776,7 +2776,7 @@ public class DatabaseDescriptor
 
     public static int getRowCacheSavePeriod()
     {
-        return conf.row_cache_save_period;
+        return conf.zbGetInt("row_cache_save_period");
     }
 
     public static void setRowCacheSavePeriod(int rowCacheSavePeriod)
@@ -2832,12 +2832,12 @@ public class DatabaseDescriptor
 
     public static int getStreamingKeepAlivePeriod()
     {
-        return conf.streaming_keep_alive_period_in_secs;
+        return conf.zbGetInteger("streaming_keep_alive_period_in_secs");
     }
 
     public static int getStreamingConnectionsPerHost()
     {
-        return conf.streaming_connections_per_host;
+        return conf.zbGetInteger("streaming_connections_per_host");
     }
 
     public static boolean streamEntireSSTables()
@@ -3433,7 +3433,7 @@ public class DatabaseDescriptor
 
     public static int tableCountWarnThreshold()
     {
-        return conf.table_count_warn_threshold;
+        return conf.zbGetInt("table_count_warn_threshold");
     }
 
     public static void setTableCountWarnThreshold(int value)

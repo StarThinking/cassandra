@@ -412,7 +412,7 @@ public class LoaderOptions
                 if (cmd.hasOption(STORAGE_PORT_OPTION))
                     storagePort = Integer.parseInt(cmd.getOptionValue(STORAGE_PORT_OPTION));
                 else
-                    storagePort = config.storage_port;
+                    storagePort = config.zbGetInt("storage_port");
 
                 if (cmd.hasOption(IGNORE_NODES_OPTION))
                 {
@@ -437,8 +437,8 @@ public class LoaderOptions
                 if (cmd.hasOption(SSL_STORAGE_PORT_OPTION))
                     sslStoragePort = Integer.parseInt(cmd.getOptionValue(SSL_STORAGE_PORT_OPTION));
                 else
-                    sslStoragePort = config.ssl_storage_port;
-                throttle = config.stream_throughput_outbound_megabits_per_sec;
+                    sslStoragePort = config.zbGetInt("ssl_storage_port");
+                throttle = config.zbGetInt("stream_throughput_outbound_megabits_per_sec");
                 // Copy the encryption options and apply the config so that argument parsing can accesss isEnabled.
                 clientEncOptions = config.client_encryption_options.applyConfig();
                 serverEncOptions = config.server_encryption_options;
