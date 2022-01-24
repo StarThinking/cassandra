@@ -537,7 +537,7 @@ public class Config
 
     public volatile int concurrent_validations;
     public RepairCommandPoolFullStrategy repair_command_pool_full_strategy = RepairCommandPoolFullStrategy.queue;
-    public int repair_command_pool_size = concurrent_validations;
+    public int repair_command_pool_size = zbGetInt("concurrent_validations");
 
     /**
      * When a node first starts up it intially considers all other peers as DOWN and is disconnected from all of them.

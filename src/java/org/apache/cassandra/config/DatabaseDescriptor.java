@@ -446,7 +446,7 @@ public class DatabaseDescriptor
 
         if (conf.commitlog_sync == Config.CommitLogSync.batch)
         {
-            if (conf.commitlog_sync_period_in_ms != 0)
+            if (conf.zbGetInt("commitlog_sync_period_in_ms") != 0)
             {
                 throw new ConfigurationException("Batch sync specified, but commitlog_sync_period_in_ms found. Only specify commitlog_sync_batch_window_in_ms when using batch sync", false);
             }
@@ -458,15 +458,15 @@ public class DatabaseDescriptor
             {
                 throw new ConfigurationException("Missing value for commitlog_sync_group_window_in_ms: positive double value expected.", false);
             }
-            else if (conf.commitlog_sync_period_in_ms != 0)
+            else if (conf.zbGetInt("commitlog_sync_period_in_ms") != 0)
             {
                 throw new ConfigurationException("Group sync specified, but commitlog_sync_period_in_ms found. Only specify commitlog_sync_group_window_in_ms when using group sync", false);
             }
-            logger.debug("Syncing log with a group window of {}", conf.commitlog_sync_period_in_ms);
+            logger.debug("Syncing log with a group window of {}", conf.zbGetInt("commitlog_sync_period_in_ms"));
         }
         else
         {
-            if (conf.commitlog_sync_period_in_ms <= 0)
+            if (conf.zbGetInt("commitlog_sync_period_in_ms") <= 0)
             {
                 throw new ConfigurationException("Missing value for commitlog_sync_period_in_ms: positive integer expected", false);
             }
@@ -474,7 +474,7 @@ public class DatabaseDescriptor
             {
                 throw new ConfigurationException("commitlog_sync_period_in_ms specified, but commitlog_sync_batch_window_in_ms found.  Only specify commitlog_sync_period_in_ms when using periodic sync.", false);
             }
-            logger.debug("Syncing log with a period of {}", conf.commitlog_sync_period_in_ms);
+            logger.debug("Syncing log with a period of {}", conf.zbGetInt("commitlog_sync_period_in_ms"));
         }
 
         /* evaluate the DiskAccessMode Config directive, which also affects indexAccessMode selection */
@@ -508,9 +508,9 @@ public class DatabaseDescriptor
         }
 
         /* Thread per pool */
-        if (conf.concurrent_reads < 2)
+        if (conf.zbGetInt("concurrent_reads") < 2)
         {
-            throw new ConfigurationException("concurrent_reads must be at least 2, but was " + conf.concurrent_reads, false);
+            throw new ConfigurationException("concurrent_reads must be at least 2, but was " + conf.zbGetInt("concurrent_reads"), false);
         }
 
         if (conf.concurrent_writes < 2 && System.getProperty("cassandra.test.fail_mv_locks_count", "").isEmpty())
@@ -518,8 +518,8 @@ public class DatabaseDescriptor
             throw new ConfigurationException("concurrent_writes must be at least 2, but was " + conf.concurrent_writes, false);
         }
 
-        if (conf.concurrent_counter_writes < 2)
-            throw new ConfigurationException("concurrent_counter_writes must be at least 2, but was " + conf.concurrent_counter_writes, false);
+        if (conf.zbGetInt("concurrent_counter_writes") < 2)
+            throw new ConfigurationException("concurrent_counter_writes must be at least 2, but was " + conf.zbGetInt("concurrent_counter_writes"), false);
 
         if (conf.concurrent_replicates != null)
             logger.warn("concurrent_replicates has been deprecated and should be removed from cassandra.yaml");
@@ -610,7 +610,7 @@ public class DatabaseDescriptor
             conf.native_transport_max_concurrent_requests_in_bytes_per_ip = Runtime.getRuntime().maxMemory() / 40;
         }
 
-        if (conf.commitlog_total_space_in_mb == null)
+        if (conf.zbGetInteger("commitlog_total_space_in_mb") == null)
         {
             final int preferredSizeInMB = 8192;
             try
@@ -744,17 +744,17 @@ public class DatabaseDescriptor
         if (conf.memtable_cleanup_threshold < 0.1f)
             logger.warn("memtable_cleanup_threshold is set very low [{}], which may cause performance degradation", conf.memtable_cleanup_threshold);
 
-        if (conf.concurrent_compactors == null)
+        if (conf.zbGetInteger("concurrent_compactors") == null)
             conf.concurrent_compactors = Math.min(8, Math.max(2, Math.min(FBUtilities.getAvailableProcessors(), conf.data_file_directories.length)));
 
-        if (conf.concurrent_compactors <= 0)
-            throw new ConfigurationException("concurrent_compactors should be strictly greater than 0, but was " + conf.concurrent_compactors, false);
+        if (conf.zbGetInteger("concurrent_compactors") <= 0)
+            throw new ConfigurationException("concurrent_compactors should be strictly greater than 0, but was " + conf.zbGetInteger("concurrent_compactors"), false);
 
         applyConcurrentValidations(conf);
         applyRepairCommandPoolSize(conf);
 
-        if (conf.concurrent_materialized_view_builders <= 0)
-            throw new ConfigurationException("concurrent_materialized_view_builders should be strictly greater than 0, but was " + conf.concurrent_materialized_view_builders, false);
+        if (conf.zbGetInt("concurrent_materialized_view_builders") <= 0)
+            throw new ConfigurationException("concurrent_materialized_view_builders should be strictly greater than 0, but was " + conf.zbGetInt("concurrent_materialized_view_builders"), false);
 
         if (conf.num_tokens != null && conf.num_tokens > MAX_NUM_TOKENS)
             throw new ConfigurationException(String.format("A maximum number of %d tokens per node is supported", MAX_NUM_TOKENS), false);
@@ -906,11 +906,11 @@ public class DatabaseDescriptor
     @VisibleForTesting
     static void applyConcurrentValidations(Config config)
     {
-        if (config.concurrent_validations < 1)
+        if (config.zbGetInt("concurrent_validations") < 1)
         {
-            config.concurrent_validations = config.concurrent_compactors;
+            config.concurrent_validations = config.zbGetInteger("concurrent_compactors");
         }
-        else if (config.concurrent_validations > config.concurrent_compactors && !allowUnlimitedConcurrentValidations)
+        else if (config.zbGetInt("concurrent_validations") > config.zbGetInteger("concurrent_compactors") && !allowUnlimitedConcurrentValidations)
         {
             throw new ConfigurationException("To set concurrent_validations > concurrent_compactors, " +
                                              "set the system property cassandra.allow_unlimited_concurrent_validations=true");
@@ -921,7 +921,7 @@ public class DatabaseDescriptor
     static void applyRepairCommandPoolSize(Config config)
     {
         if (config.repair_command_pool_size < 1)
-            config.repair_command_pool_size = config.concurrent_validations;
+            config.repair_command_pool_size = config.zbGetInt("concurrent_validations");
     }
 
     private static String storagedirFor(String type)
@@ -1783,7 +1783,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentReaders()
     {
-        return conf.concurrent_reads;
+        return conf.zbGetInt("concurrent_reads");
     }
 
     public static void setConcurrentReaders(int concurrent_reads)
@@ -1811,7 +1811,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentCounterWriters()
     {
-        return conf.concurrent_counter_writes;
+        return conf.zbGetInt("concurrent_counter_writes");
     }
 
     public static void setConcurrentCounterWriters(int concurrent_counter_writes)
@@ -1825,7 +1825,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentViewWriters()
     {
-        return conf.concurrent_materialized_view_writes;
+        return conf.zbGetInt("concurrent_materialized_view_writes");
     }
 
     public static void setConcurrentViewWriters(int concurrent_materialized_view_writes)
@@ -1844,7 +1844,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentCompactors()
     {
-        return conf.concurrent_compactors;
+        return conf.zbGetInteger("concurrent_compactors");
     }
 
     public static void setConcurrentCompactors(int value)
@@ -1854,7 +1854,7 @@ public class DatabaseDescriptor
 
     public static int getCompactionThroughputMbPerSec()
     {
-        return conf.compaction_throughput_mb_per_sec;
+        return conf.zbGetInt("compaction_throughput_mb_per_sec");
     }
 
     public static void setCompactionThroughputMbPerSec(int value)
@@ -1862,11 +1862,11 @@ public class DatabaseDescriptor
         conf.compaction_throughput_mb_per_sec = value;
     }
 
-    public static long getCompactionLargePartitionWarningThreshold() { return ByteUnit.MEBI_BYTES.toBytes(conf.compaction_large_partition_warning_threshold_mb); }
+    public static long getCompactionLargePartitionWarningThreshold() { return ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("compaction_large_partition_warning_threshold_mb")); }
 
     public static int getConcurrentValidations()
     {
-        return conf.concurrent_validations;
+        return conf.zbGetInt("concurrent_validations");
     }
 
     public static void setConcurrentValidations(int value)
@@ -1877,7 +1877,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentViewBuilders()
     {
-        return conf.concurrent_materialized_view_builders;
+        return conf.zbGetInt("concurrent_materialized_view_builders");
     }
 
     public static void setConcurrentViewBuilders(int value)
@@ -2379,7 +2379,7 @@ public class DatabaseDescriptor
 
     public static int getCommitLogSyncPeriod()
     {
-        return conf.commitlog_sync_period_in_ms;
+        return conf.zbGetInt("commitlog_sync_period_in_ms");
     }
 
     public static long getPeriodicCommitLogSyncBlock()
@@ -2696,7 +2696,7 @@ public class DatabaseDescriptor
 
     public static long getTotalCommitlogSpaceInMB()
     {
-        return conf.commitlog_total_space_in_mb;
+        return conf.zbGetInteger("commitlog_total_space_in_mb");
     }
 
     public static boolean shouldMigrateKeycacheOnCompaction()
