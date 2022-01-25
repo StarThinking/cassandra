@@ -849,7 +849,7 @@ public class DatabaseDescriptor
             }
         }
 
-        if (conf.snapshot_links_per_second < 0)
+        if (conf.zbGetLong("snapshot_links_per_second") < 0)
             throw new ConfigurationException("snapshot_links_per_second must be >= 0");
 
         if (conf.zbGetInteger("max_value_size_in_mb") <= 0)
@@ -1099,9 +1099,9 @@ public class DatabaseDescriptor
     @VisibleForTesting
     static void checkForLowestAcceptedTimeouts(Config conf)
     {
-        if(conf.read_request_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("read_request_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("read_request_timeout_in_ms", conf.read_request_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("read_request_timeout_in_ms", conf.zbGetLong("read_request_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.read_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
@@ -1111,15 +1111,15 @@ public class DatabaseDescriptor
            conf.range_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
-        if(conf.request_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("request_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("request_timeout_in_ms", conf.request_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("request_timeout_in_ms", conf.zbGetLong("request_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
-        if(conf.write_request_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("write_request_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("write_request_timeout_in_ms", conf.write_request_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("write_request_timeout_in_ms", conf.zbGetLong("write_request_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.write_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
@@ -1135,9 +1135,9 @@ public class DatabaseDescriptor
            conf.counter_write_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
-        if(conf.truncate_request_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("truncate_request_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("truncate_request_timeout_in_ms", conf.truncate_request_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("truncate_request_timeout_in_ms", conf.zbGetLong("truncate_request_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.truncate_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
     }
@@ -1670,7 +1670,7 @@ public class DatabaseDescriptor
 
     public static long getRpcTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.request_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("request_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setRpcTimeout(long timeOutInMillis)
@@ -1680,7 +1680,7 @@ public class DatabaseDescriptor
 
     public static long getReadRpcTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.read_request_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("read_request_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setReadRpcTimeout(long timeOutInMillis)
@@ -1700,7 +1700,7 @@ public class DatabaseDescriptor
 
     public static long getWriteRpcTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.write_request_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("write_request_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setWriteRpcTimeout(long timeOutInMillis)
@@ -1730,7 +1730,7 @@ public class DatabaseDescriptor
 
     public static long getTruncateRpcTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.truncate_request_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("truncate_request_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setTruncateRpcTimeout(long timeOutInMillis)
@@ -1750,7 +1750,7 @@ public class DatabaseDescriptor
 
     public static long getSlowQueryTimeout(TimeUnit units)
     {
-        return units.convert(conf.slow_query_log_timeout_in_ms, MILLISECONDS);
+        return units.convert(conf.zbGetLong("slow_query_log_timeout_in_ms"), MILLISECONDS);
     }
 
     /**
@@ -2472,7 +2472,7 @@ public class DatabaseDescriptor
 
     public static long getSnapshotLinksPerSecond()
     {
-        return conf.snapshot_links_per_second == 0 ? Long.MAX_VALUE : conf.snapshot_links_per_second;
+        return conf.zbGetLong("snapshot_links_per_second") == 0 ? Long.MAX_VALUE : conf.zbGetLong("snapshot_links_per_second");
     }
 
     public static void setSnapshotLinksPerSecond(long throttle)
@@ -2765,7 +2765,7 @@ public class DatabaseDescriptor
 
     public static long getRowCacheSizeInMB()
     {
-        return conf.row_cache_size_in_mb;
+        return conf.zbGetLong("row_cache_size_in_mb");
     }
 
     @VisibleForTesting
