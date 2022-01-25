@@ -1568,7 +1568,7 @@ public class DatabaseDescriptor
 
     public static int getUnloggedBatchAcrossPartitionsWarnThreshold()
     {
-        return conf.unlogged_batch_across_partitions_warn_threshold;
+        return conf.zbGetInteger("unlogged_batch_across_partitions_warn_threshold");
     }
 
     public static void setBatchSizeWarnThresholdInKB(int threshold)
@@ -2725,7 +2725,7 @@ public class DatabaseDescriptor
 
     public static int getTrickleFsyncIntervalInKb()
     {
-        return conf.trickle_fsync_interval_in_kb;
+        return conf.zbGetInt("trickle_fsync_interval_in_kb");
     }
 
     public static long getKeyCacheSizeInMB()
@@ -2946,17 +2946,17 @@ public class DatabaseDescriptor
 
     public static int getTracetypeRepairTTL()
     {
-        return conf.tracetype_repair_ttl;
+        return conf.zbGetInt("tracetype_repair_ttl");
     }
 
     public static int getTracetypeQueryTTL()
     {
-        return conf.tracetype_query_ttl;
+        return conf.zbGetInt("tracetype_query_ttl");
     }
 
     public static int getWindowsTimerInterval()
     {
-        return conf.windows_timer_interval;
+        return conf.zbGetInt("windows_timer_interval");
     }
 
     public static long getPreparedStatementsCacheSizeMB()
