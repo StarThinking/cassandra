@@ -454,7 +454,7 @@ public class DatabaseDescriptor
         }
         else if (conf.commitlog_sync == CommitLogSync.group)
         {
-            if (Double.isNaN(conf.commitlog_sync_group_window_in_ms) || conf.commitlog_sync_group_window_in_ms <= 0d)
+            if (Double.isNaN(conf.zbGetDouble("commitlog_sync_group_window_in_ms")) || conf.zbGetDouble("commitlog_sync_group_window_in_ms") <= 0d)
             {
                 throw new ConfigurationException("Missing value for commitlog_sync_group_window_in_ms: positive double value expected.", false);
             }
@@ -470,7 +470,7 @@ public class DatabaseDescriptor
             {
                 throw new ConfigurationException("Missing value for commitlog_sync_period_in_ms: positive integer expected", false);
             }
-            else if (!Double.isNaN(conf.commitlog_sync_batch_window_in_ms))
+            else if (!Double.isNaN(conf.zbGetDouble("commitlog_sync_batch_window_in_ms")))
             {
                 throw new ConfigurationException("commitlog_sync_period_in_ms specified, but commitlog_sync_batch_window_in_ms found.  Only specify commitlog_sync_period_in_ms when using periodic sync.", false);
             }
@@ -502,9 +502,9 @@ public class DatabaseDescriptor
         }
 
         /* phi convict threshold for FailureDetector */
-        if (conf.phi_convict_threshold < 5 || conf.phi_convict_threshold > 16)
+        if (conf.zbGetDouble("phi_convict_threshold") < 5 || conf.zbGetDouble("phi_convict_threshold") > 16)
         {
-            throw new ConfigurationException("phi_convict_threshold must be between 5 and 16, but was " + conf.phi_convict_threshold, false);
+            throw new ConfigurationException("phi_convict_threshold must be between 5 and 16, but was " + conf.zbGetDouble("phi_convict_threshold"), false);
         }
 
         /* Thread per pool */
@@ -728,7 +728,7 @@ public class DatabaseDescriptor
         if (conf.zbGetInteger("memtable_flush_writers") < 1)
             throw new ConfigurationException("memtable_flush_writers must be at least 1, but was " + conf.zbGetInteger("memtable_flush_writers"), false);
 
-        if (conf.memtable_cleanup_threshold == null)
+        if (conf.zbGetFloat("memtable_cleanup_threshold") == null)
         {
             conf.memtable_cleanup_threshold = (float) (1.0 / (1 + conf.zbGetInteger("memtable_flush_writers")));
         }
@@ -737,12 +737,12 @@ public class DatabaseDescriptor
             logger.warn("memtable_cleanup_threshold has been deprecated and should be removed from cassandra.yaml");
         }
 
-        if (conf.memtable_cleanup_threshold < 0.01f)
-            throw new ConfigurationException("memtable_cleanup_threshold must be >= 0.01, but was " + conf.memtable_cleanup_threshold, false);
-        if (conf.memtable_cleanup_threshold > 0.99f)
-            throw new ConfigurationException("memtable_cleanup_threshold must be <= 0.99, but was " + conf.memtable_cleanup_threshold, false);
-        if (conf.memtable_cleanup_threshold < 0.1f)
-            logger.warn("memtable_cleanup_threshold is set very low [{}], which may cause performance degradation", conf.memtable_cleanup_threshold);
+        if (conf.zbGetFloat("memtable_cleanup_threshold") < 0.01f)
+            throw new ConfigurationException("memtable_cleanup_threshold must be >= 0.01, but was " + conf.zbGetFloat("memtable_cleanup_threshold"), false);
+        if (conf.zbGetFloat("memtable_cleanup_threshold") > 0.99f)
+            throw new ConfigurationException("memtable_cleanup_threshold must be <= 0.99, but was " + conf.zbGetFloat("memtable_cleanup_threshold"), false);
+        if (conf.zbGetFloat("memtable_cleanup_threshold") < 0.1f)
+            logger.warn("memtable_cleanup_threshold is set very low [{}], which may cause performance degradation", conf.zbGetFloat("memtable_cleanup_threshold"));
 
         if (conf.zbGetInteger("concurrent_compactors") == null)
             conf.concurrent_compactors = Math.min(8, Math.max(2, Math.min(FBUtilities.getAvailableProcessors(), conf.data_file_directories.length)));
@@ -1773,7 +1773,7 @@ public class DatabaseDescriptor
 
     public static double getPhiConvictThreshold()
     {
-        return conf.phi_convict_threshold;
+        return conf.zbGetDouble("phi_convict_threshold");
     }
 
     public static void setPhiConvictThreshold(double phiConvictThreshold)
@@ -2339,7 +2339,7 @@ public class DatabaseDescriptor
 
     public static double getCommitLogSyncGroupWindow()
     {
-        return conf.commitlog_sync_group_window_in_ms;
+        return conf.zbGetDouble("commitlog_sync_group_window_in_ms");
     }
 
     public static void setCommitLogSyncGroupWindow(double windowMillis)
@@ -2560,7 +2560,7 @@ public class DatabaseDescriptor
 
     public static double getDynamicBadnessThreshold()
     {
-        return conf.dynamic_snitch_badness_threshold;
+        return conf.zbGetDouble("dynamic_snitch_badness_threshold");
     }
 
     public static void setDynamicBadnessThreshold(double dynamicBadnessThreshold)
@@ -2920,7 +2920,7 @@ public class DatabaseDescriptor
 
     public static Float getMemtableCleanupThreshold()
     {
-        return conf.memtable_cleanup_threshold;
+        return conf.zbGetFloat("memtable_cleanup_threshold");
     }
 
     public static int getIndexSummaryResizeIntervalInMinutes()
