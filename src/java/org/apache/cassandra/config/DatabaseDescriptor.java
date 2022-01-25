@@ -762,9 +762,9 @@ public class DatabaseDescriptor
         try
         {
             // if prepared_statements_cache_size_mb option was set to "auto" then size of the cache should be "max(1/256 of Heap (in MB), 10MB)"
-            preparedStatementsCacheSizeInMB = (conf.prepared_statements_cache_size_mb == null)
+            preparedStatementsCacheSizeInMB = (conf.zbGetLong("prepared_statements_cache_size_mb") == null)
                                               ? Math.max(10, (int) (Runtime.getRuntime().maxMemory() / 1024 / 1024 / 256))
-                                              : conf.prepared_statements_cache_size_mb;
+                                              : conf.zbGetLong("prepared_statements_cache_size_mb");
 
             if (preparedStatementsCacheSizeInMB <= 0)
                 throw new NumberFormatException(); // to escape duplicating error message
@@ -772,15 +772,15 @@ public class DatabaseDescriptor
         catch (NumberFormatException e)
         {
             throw new ConfigurationException("prepared_statements_cache_size_mb option was set incorrectly to '"
-                                             + conf.prepared_statements_cache_size_mb + "', supported values are <integer> >= 0.", false);
+                                             + conf.zbGetLong("prepared_statements_cache_size_mb") + "', supported values are <integer> >= 0.", false);
         }
 
         try
         {
             // if key_cache_size_in_mb option was set to "auto" then size of the cache should be "min(5% of Heap (in MB), 100MB)
-            keyCacheSizeInMB = (conf.key_cache_size_in_mb == null)
+            keyCacheSizeInMB = (conf.zbGetLong("key_cache_size_in_mb") == null)
                                ? Math.min(Math.max(1, (int) (Runtime.getRuntime().totalMemory() * 0.05 / 1024 / 1024)), 100)
-                               : conf.key_cache_size_in_mb;
+                               : conf.zbGetLong("key_cache_size_in_mb");
 
             if (keyCacheSizeInMB < 0)
                 throw new NumberFormatException(); // to escape duplicating error message
@@ -788,15 +788,15 @@ public class DatabaseDescriptor
         catch (NumberFormatException e)
         {
             throw new ConfigurationException("key_cache_size_in_mb option was set incorrectly to '"
-                                             + conf.key_cache_size_in_mb + "', supported values are <integer> >= 0.", false);
+                                             + conf.zbGetLong("key_cache_size_in_mb") + "', supported values are <integer> >= 0.", false);
         }
 
         try
         {
             // if counter_cache_size_in_mb option was set to "auto" then size of the cache should be "min(2.5% of Heap (in MB), 50MB)
-            counterCacheSizeInMB = (conf.counter_cache_size_in_mb == null)
+            counterCacheSizeInMB = (conf.zbGetLong("counter_cache_size_in_mb") == null)
                                    ? Math.min(Math.max(1, (int) (Runtime.getRuntime().totalMemory() * 0.025 / 1024 / 1024)), 50)
-                                   : conf.counter_cache_size_in_mb;
+                                   : conf.zbGetLong("counter_cache_size_in_mb");
 
             if (counterCacheSizeInMB < 0)
                 throw new NumberFormatException(); // to escape duplicating error message
@@ -804,17 +804,17 @@ public class DatabaseDescriptor
         catch (NumberFormatException e)
         {
             throw new ConfigurationException("counter_cache_size_in_mb option was set incorrectly to '"
-                                             + conf.counter_cache_size_in_mb + "', supported values are <integer> >= 0.", false);
+                                             + conf.zbGetLong("counter_cache_size_in_mb") + "', supported values are <integer> >= 0.", false);
         }
 
         // if set to empty/"auto" then use 5% of Heap size
-        indexSummaryCapacityInMB = (conf.index_summary_capacity_in_mb == null)
+        indexSummaryCapacityInMB = (conf.zbGetLong("index_summary_capacity_in_mb") == null)
                                    ? Math.max(1, (int) (Runtime.getRuntime().totalMemory() * 0.05 / 1024 / 1024))
-                                   : conf.index_summary_capacity_in_mb;
+                                   : conf.zbGetLong("index_summary_capacity_in_mb");
 
         if (indexSummaryCapacityInMB < 0)
             throw new ConfigurationException("index_summary_capacity_in_mb option was set incorrectly to '"
-                                             + conf.index_summary_capacity_in_mb + "', it should be a non-negative integer.", false);
+                                             + conf.zbGetLong("index_summary_capacity_in_mb") + "', it should be a non-negative integer.", false);
 
         if (conf.user_defined_function_fail_timeout < 0)
             throw new ConfigurationException("user_defined_function_fail_timeout must not be negative", false);
@@ -1105,9 +1105,9 @@ public class DatabaseDescriptor
            conf.read_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
-        if(conf.range_request_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("range_request_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("range_request_timeout_in_ms", conf.range_request_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("range_request_timeout_in_ms", conf.zbGetLong("range_request_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.range_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
@@ -1123,15 +1123,15 @@ public class DatabaseDescriptor
            conf.write_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
-        if(conf.cas_contention_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("cas_contention_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("cas_contention_timeout_in_ms", conf.cas_contention_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("cas_contention_timeout_in_ms", conf.zbGetLong("cas_contention_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.cas_contention_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
-        if(conf.counter_write_request_timeout_in_ms < LOWEST_ACCEPTED_TIMEOUT)
+        if(conf.zbGetLong("counter_write_request_timeout_in_ms") < LOWEST_ACCEPTED_TIMEOUT)
         {
-           logInfo("counter_write_request_timeout_in_ms", conf.counter_write_request_timeout_in_ms, LOWEST_ACCEPTED_TIMEOUT);
+           logInfo("counter_write_request_timeout_in_ms", conf.zbGetLong("counter_write_request_timeout_in_ms"), LOWEST_ACCEPTED_TIMEOUT);
            conf.counter_write_request_timeout_in_ms = LOWEST_ACCEPTED_TIMEOUT;
         }
 
@@ -1660,7 +1660,7 @@ public class DatabaseDescriptor
 
     public static long nativeTransportIdleTimeout()
     {
-        return conf.native_transport_idle_timeout_in_ms;
+        return conf.zbGetLong("native_transport_idle_timeout_in_ms");
     }
 
     public static void setNativeTransportIdleTimeout(long nativeTransportTimeout)
@@ -1690,7 +1690,7 @@ public class DatabaseDescriptor
 
     public static long getRangeRpcTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.range_request_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("range_request_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setRangeRpcTimeout(long timeOutInMillis)
@@ -1710,7 +1710,7 @@ public class DatabaseDescriptor
 
     public static long getCounterWriteRpcTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.counter_write_request_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("counter_write_request_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setCounterWriteRpcTimeout(long timeOutInMillis)
@@ -1720,7 +1720,7 @@ public class DatabaseDescriptor
 
     public static long getCasContentionTimeout(TimeUnit unit)
     {
-        return unit.convert(conf.cas_contention_timeout_in_ms, MILLISECONDS);
+        return unit.convert(conf.zbGetLong("cas_contention_timeout_in_ms"), MILLISECONDS);
     }
 
     public static void setCasContentionTimeout(long timeOutInMillis)
@@ -2304,7 +2304,7 @@ public class DatabaseDescriptor
 
     public static long getNativeTransportMaxConcurrentConnections()
     {
-        return conf.native_transport_max_concurrent_connections;
+        return conf.zbGetLong("native_transport_max_concurrent_connections");
     }
 
     public static void setNativeTransportMaxConcurrentConnections(long nativeTransportMaxConcurrentConnections)
@@ -2314,7 +2314,7 @@ public class DatabaseDescriptor
 
     public static long getNativeTransportMaxConcurrentConnectionsPerIp()
     {
-        return conf.native_transport_max_concurrent_connections_per_ip;
+        return conf.zbGetLong("native_transport_max_concurrent_connections_per_ip");
     }
 
     public static void setNativeTransportMaxConcurrentConnectionsPerIp(long native_transport_max_concurrent_connections_per_ip)
