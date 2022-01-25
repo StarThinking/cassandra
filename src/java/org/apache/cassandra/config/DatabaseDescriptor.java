@@ -446,7 +446,7 @@ public class DatabaseDescriptor
 
         if (conf.commitlog_sync == Config.CommitLogSync.batch)
         {
-            if (conf.zbGetInt("commitlog_sync_period_in_ms") != 0)
+            if (conf.zbGetInteger("commitlog_sync_period_in_ms") != 0)
             {
                 throw new ConfigurationException("Batch sync specified, but commitlog_sync_period_in_ms found. Only specify commitlog_sync_batch_window_in_ms when using batch sync", false);
             }
@@ -458,15 +458,15 @@ public class DatabaseDescriptor
             {
                 throw new ConfigurationException("Missing value for commitlog_sync_group_window_in_ms: positive double value expected.", false);
             }
-            else if (conf.zbGetInt("commitlog_sync_period_in_ms") != 0)
+            else if (conf.zbGetInteger("commitlog_sync_period_in_ms") != 0)
             {
                 throw new ConfigurationException("Group sync specified, but commitlog_sync_period_in_ms found. Only specify commitlog_sync_group_window_in_ms when using group sync", false);
             }
-            logger.debug("Syncing log with a group window of {}", conf.zbGetInt("commitlog_sync_period_in_ms"));
+            logger.debug("Syncing log with a group window of {}", conf.zbGetInteger("commitlog_sync_period_in_ms"));
         }
         else
         {
-            if (conf.zbGetInt("commitlog_sync_period_in_ms") <= 0)
+            if (conf.zbGetInteger("commitlog_sync_period_in_ms") <= 0)
             {
                 throw new ConfigurationException("Missing value for commitlog_sync_period_in_ms: positive integer expected", false);
             }
@@ -474,7 +474,7 @@ public class DatabaseDescriptor
             {
                 throw new ConfigurationException("commitlog_sync_period_in_ms specified, but commitlog_sync_batch_window_in_ms found.  Only specify commitlog_sync_period_in_ms when using periodic sync.", false);
             }
-            logger.debug("Syncing log with a period of {}", conf.zbGetInt("commitlog_sync_period_in_ms"));
+            logger.debug("Syncing log with a period of {}", conf.zbGetInteger("commitlog_sync_period_in_ms"));
         }
 
         /* evaluate the DiskAccessMode Config directive, which also affects indexAccessMode selection */
@@ -496,7 +496,7 @@ public class DatabaseDescriptor
             logger.info("DiskAccessMode is {}, indexAccessMode is {}", conf.disk_access_mode, indexAccessMode);
         }
 
-        if (conf.zbGetInt("gc_warn_threshold_in_ms") < 0)
+        if (conf.zbGetInteger("gc_warn_threshold_in_ms") < 0)
         {
             throw new ConfigurationException("gc_warn_threshold_in_ms must be a positive integer");
         }
@@ -508,18 +508,18 @@ public class DatabaseDescriptor
         }
 
         /* Thread per pool */
-        if (conf.zbGetInt("concurrent_reads") < 2)
+        if (conf.zbGetInteger("concurrent_reads") < 2)
         {
-            throw new ConfigurationException("concurrent_reads must be at least 2, but was " + conf.zbGetInt("concurrent_reads"), false);
+            throw new ConfigurationException("concurrent_reads must be at least 2, but was " + conf.zbGetInteger("concurrent_reads"), false);
         }
 
-        if (conf.zbGetInt("concurrent_writes") < 2 && System.getProperty("cassandra.test.fail_mv_locks_count", "").isEmpty())
+        if (conf.zbGetInteger("concurrent_writes") < 2 && System.getProperty("cassandra.test.fail_mv_locks_count", "").isEmpty())
         {
-            throw new ConfigurationException("concurrent_writes must be at least 2, but was " + conf.zbGetInt("concurrent_writes"), false);
+            throw new ConfigurationException("concurrent_writes must be at least 2, but was " + conf.zbGetInteger("concurrent_writes"), false);
         }
 
-        if (conf.zbGetInt("concurrent_counter_writes") < 2)
-            throw new ConfigurationException("concurrent_counter_writes must be at least 2, but was " + conf.zbGetInt("concurrent_counter_writes"), false);
+        if (conf.zbGetInteger("concurrent_counter_writes") < 2)
+            throw new ConfigurationException("concurrent_counter_writes must be at least 2, but was " + conf.zbGetInteger("concurrent_counter_writes"), false);
 
         if (conf.concurrent_replicates != null)
             logger.warn("concurrent_replicates has been deprecated and should be removed from cassandra.yaml");
@@ -572,16 +572,16 @@ public class DatabaseDescriptor
 
         checkForLowestAcceptedTimeouts(conf);
 
-        checkValidForByteConversion(conf.zbGetInt("native_transport_max_frame_size_in_mb"),
+        checkValidForByteConversion(conf.zbGetInteger("native_transport_max_frame_size_in_mb"),
                                     "native_transport_max_frame_size_in_mb", ByteUnit.MEBI_BYTES);
 
-        checkValidForByteConversion(conf.zbGetInt("column_index_size_in_kb"),
+        checkValidForByteConversion(conf.zbGetInteger("column_index_size_in_kb"),
                                     "column_index_size_in_kb", ByteUnit.KIBI_BYTES);
 
-        checkValidForByteConversion(conf.zbGetInt("column_index_cache_size_in_kb"),
+        checkValidForByteConversion(conf.zbGetInteger("column_index_cache_size_in_kb"),
                                     "column_index_cache_size_in_kb", ByteUnit.KIBI_BYTES);
 
-        checkValidForByteConversion(conf.zbGetInt("batch_size_warn_threshold_in_kb"),
+        checkValidForByteConversion(conf.zbGetInteger("batch_size_warn_threshold_in_kb"),
                                     "batch_size_warn_threshold_in_kb", ByteUnit.KIBI_BYTES);
 
         if (conf.native_transport_max_negotiable_protocol_version != null)
@@ -643,7 +643,7 @@ public class DatabaseDescriptor
                 conf.cdc_raw_directory = storagedirFor("cdc_raw");
             }
 
-            if (conf.zbGetInt("cdc_total_space_in_mb") == 0)
+            if (conf.zbGetInteger("cdc_total_space_in_mb") == 0)
             {
                 final int preferredSizeInMB = 4096;
                 try
@@ -720,17 +720,17 @@ public class DatabaseDescriptor
         if (conf.hints_directory.equals(conf.saved_caches_directory))
             throw new ConfigurationException("saved_caches_directory must not be the same as the hints_directory", false);
 
-        if (conf.zbGetInt("memtable_flush_writers") == 0)
+        if (conf.zbGetInteger("memtable_flush_writers") == 0)
         {
             conf.memtable_flush_writers = conf.data_file_directories.length == 1 ? 2 : 1;
         }
 
-        if (conf.zbGetInt("memtable_flush_writers") < 1)
-            throw new ConfigurationException("memtable_flush_writers must be at least 1, but was " + conf.zbGetInt("memtable_flush_writers"), false);
+        if (conf.zbGetInteger("memtable_flush_writers") < 1)
+            throw new ConfigurationException("memtable_flush_writers must be at least 1, but was " + conf.zbGetInteger("memtable_flush_writers"), false);
 
         if (conf.memtable_cleanup_threshold == null)
         {
-            conf.memtable_cleanup_threshold = (float) (1.0 / (1 + conf.zbGetInt("memtable_flush_writers")));
+            conf.memtable_cleanup_threshold = (float) (1.0 / (1 + conf.zbGetInteger("memtable_flush_writers")));
         }
         else
         {
@@ -753,8 +753,8 @@ public class DatabaseDescriptor
         applyConcurrentValidations(conf);
         applyRepairCommandPoolSize(conf);
 
-        if (conf.zbGetInt("concurrent_materialized_view_builders") <= 0)
-            throw new ConfigurationException("concurrent_materialized_view_builders should be strictly greater than 0, but was " + conf.zbGetInt("concurrent_materialized_view_builders"), false);
+        if (conf.zbGetInteger("concurrent_materialized_view_builders") <= 0)
+            throw new ConfigurationException("concurrent_materialized_view_builders should be strictly greater than 0, but was " + conf.zbGetInteger("concurrent_materialized_view_builders"), false);
 
         if (conf.zbGetInteger("num_tokens") != null && conf.zbGetInteger("num_tokens") > MAX_NUM_TOKENS)
             throw new ConfigurationException(String.format("A maximum number of %d tokens per node is supported", MAX_NUM_TOKENS), false);
@@ -824,16 +824,16 @@ public class DatabaseDescriptor
         if (conf.user_defined_function_fail_timeout < conf.user_defined_function_warn_timeout)
             throw new ConfigurationException("user_defined_function_warn_timeout must less than user_defined_function_fail_timeout", false);
 
-        if (conf.zbGetInt("commitlog_segment_size_in_mb") <= 0)
+        if (conf.zbGetInteger("commitlog_segment_size_in_mb") <= 0)
             throw new ConfigurationException("commitlog_segment_size_in_mb must be positive, but was "
-                    + conf.zbGetInt("commitlog_segment_size_in_mb"), false);
-        else if (conf.zbGetInt("commitlog_segment_size_in_mb") >= 2048)
+                    + conf.zbGetInteger("commitlog_segment_size_in_mb"), false);
+        else if (conf.zbGetInteger("commitlog_segment_size_in_mb") >= 2048)
             throw new ConfigurationException("commitlog_segment_size_in_mb must be smaller than 2048, but was "
-                    + conf.zbGetInt("commitlog_segment_size_in_mb"), false);
+                    + conf.zbGetInteger("commitlog_segment_size_in_mb"), false);
 
         if (conf.max_mutation_size_in_kb == null)
-            conf.max_mutation_size_in_kb = conf.zbGetInt("commitlog_segment_size_in_mb") * 1024 / 2;
-        else if (conf.zbGetInt("commitlog_segment_size_in_mb") * 1024 < 2 * conf.max_mutation_size_in_kb)
+            conf.max_mutation_size_in_kb = conf.zbGetInteger("commitlog_segment_size_in_mb") * 1024 / 2;
+        else if (conf.zbGetInteger("commitlog_segment_size_in_mb") * 1024 < 2 * conf.max_mutation_size_in_kb)
             throw new ConfigurationException("commitlog_segment_size_in_mb must be at least twice the size of max_mutation_size_in_kb / 1024", false);
 
         // native transport encryption options
@@ -842,7 +842,7 @@ public class DatabaseDescriptor
             conf.client_encryption_options.applyConfig();
 
             if (conf.zbGetInteger("native_transport_port_ssl") != null
-                && conf.zbGetInteger("native_transport_port_ssl") != conf.zbGetInt("native_transport_port")
+                && conf.zbGetInteger("native_transport_port_ssl") != conf.zbGetInteger("native_transport_port")
                 && conf.client_encryption_options.tlsEncryptionPolicy() == EncryptionOptions.TlsEncryptionPolicy.UNENCRYPTED)
             {
                 throw new ConfigurationException("Encryption must be enabled in client_encryption_options for native_transport_port_ssl", false);
@@ -852,11 +852,11 @@ public class DatabaseDescriptor
         if (conf.snapshot_links_per_second < 0)
             throw new ConfigurationException("snapshot_links_per_second must be >= 0");
 
-        if (conf.zbGetInt("max_value_size_in_mb") <= 0)
+        if (conf.zbGetInteger("max_value_size_in_mb") <= 0)
             throw new ConfigurationException("max_value_size_in_mb must be positive", false);
-        else if (conf.zbGetInt("max_value_size_in_mb") >= 2048)
+        else if (conf.zbGetInteger("max_value_size_in_mb") >= 2048)
             throw new ConfigurationException("max_value_size_in_mb must be smaller than 2048, but was "
-                    + conf.zbGetInt("max_value_size_in_mb"), false);
+                    + conf.zbGetInteger("max_value_size_in_mb"), false);
 
         switch (conf.disk_optimization_strategy)
         {
@@ -881,36 +881,36 @@ public class DatabaseDescriptor
         Integer maxMessageSize = conf.internode_max_message_size_in_bytes;
         if (maxMessageSize != null)
         {
-            if (maxMessageSize > conf.zbGetInt("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes"))
+            if (maxMessageSize > conf.zbGetInteger("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_receive_queue_reserve_endpoint_capacity_in_bytes", false);
 
-            if (maxMessageSize > conf.zbGetInt("internode_application_receive_queue_reserve_global_capacity_in_bytes"))
+            if (maxMessageSize > conf.zbGetInteger("internode_application_receive_queue_reserve_global_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_receive_queue_reserve_global_capacity_in_bytes", false);
 
-            if (maxMessageSize > conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"))
+            if (maxMessageSize > conf.zbGetInteger("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_send_queue_reserve_endpoint_capacity_in_bytes", false);
 
-            if (maxMessageSize > conf.zbGetInt("internode_application_send_queue_reserve_global_capacity_in_bytes"))
+            if (maxMessageSize > conf.zbGetInteger("internode_application_send_queue_reserve_global_capacity_in_bytes"))
                 throw new ConfigurationException("internode_max_message_size_in_mb must no exceed internode_application_send_queue_reserve_global_capacity_in_bytes", false);
         }
         else
         {
             conf.internode_max_message_size_in_bytes =
-                Math.min(conf.zbGetInt("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes"),
-                         conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"));
+                Math.min(conf.zbGetInteger("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes"),
+                         conf.zbGetInteger("internode_application_send_queue_reserve_endpoint_capacity_in_bytes"));
         }
 
-        validateMaxConcurrentAutoUpgradeTasksConf(conf.zbGetInt("max_concurrent_automatic_sstable_upgrades"));
+        validateMaxConcurrentAutoUpgradeTasksConf(conf.zbGetInteger("max_concurrent_automatic_sstable_upgrades"));
     }
 
     @VisibleForTesting
     static void applyConcurrentValidations(Config config)
     {
-        if (config.zbGetInt("concurrent_validations") < 1)
+        if (config.zbGetInteger("concurrent_validations") < 1)
         {
             config.concurrent_validations = config.zbGetInteger("concurrent_compactors");
         }
-        else if (config.zbGetInt("concurrent_validations") > config.zbGetInteger("concurrent_compactors") && !allowUnlimitedConcurrentValidations)
+        else if (config.zbGetInteger("concurrent_validations") > config.zbGetInteger("concurrent_compactors") && !allowUnlimitedConcurrentValidations)
         {
             throw new ConfigurationException("To set concurrent_validations > concurrent_compactors, " +
                                              "set the system property cassandra.allow_unlimited_concurrent_validations=true");
@@ -920,8 +920,8 @@ public class DatabaseDescriptor
     @VisibleForTesting
     static void applyRepairCommandPoolSize(Config config)
     {
-        if (config.zbGetInt("repair_command_pool_size") < 1)
-            config.repair_command_pool_size = config.zbGetInt("concurrent_validations");
+        if (config.zbGetInteger("repair_command_pool_size") < 1)
+            config.repair_command_pool_size = config.zbGetInteger("concurrent_validations");
     }
 
     private static String storagedirFor(String type)
@@ -1337,7 +1337,7 @@ public class DatabaseDescriptor
 
     public static int getPermissionsValidity()
     {
-        return conf.zbGetInt("permissions_validity_in_ms");
+        return conf.zbGetInteger("permissions_validity_in_ms");
     }
 
     public static void setPermissionsValidity(int timeout)
@@ -1347,9 +1347,9 @@ public class DatabaseDescriptor
 
     public static int getPermissionsUpdateInterval()
     {
-        return conf.zbGetInt("permissions_update_interval_in_ms") == -1
-             ? conf.zbGetInt("permissions_validity_in_ms")
-             : conf.zbGetInt("permissions_update_interval_in_ms");
+        return conf.zbGetInteger("permissions_update_interval_in_ms") == -1
+             ? conf.zbGetInteger("permissions_validity_in_ms")
+             : conf.zbGetInteger("permissions_update_interval_in_ms");
     }
 
     public static void setPermissionsUpdateInterval(int updateInterval)
@@ -1369,7 +1369,7 @@ public class DatabaseDescriptor
 
     public static int getRolesValidity()
     {
-        return conf.zbGetInt("roles_validity_in_ms");
+        return conf.zbGetInteger("roles_validity_in_ms");
     }
 
     public static void setRolesValidity(int validity)
@@ -1379,9 +1379,9 @@ public class DatabaseDescriptor
 
     public static int getRolesUpdateInterval()
     {
-        return conf.zbGetInt("roles_update_interval_in_ms") == -1
-             ? conf.zbGetInt("roles_validity_in_ms")
-             : conf.zbGetInt("roles_update_interval_in_ms");
+        return conf.zbGetInteger("roles_update_interval_in_ms") == -1
+             ? conf.zbGetInteger("roles_validity_in_ms")
+             : conf.zbGetInteger("roles_update_interval_in_ms");
     }
 
     public static void setRolesUpdateInterval(int interval)
@@ -1401,7 +1401,7 @@ public class DatabaseDescriptor
 
     public static int getCredentialsValidity()
     {
-        return conf.zbGetInt("credentials_validity_in_ms");
+        return conf.zbGetInteger("credentials_validity_in_ms");
     }
 
     public static void setCredentialsValidity(int timeout)
@@ -1411,9 +1411,9 @@ public class DatabaseDescriptor
 
     public static int getCredentialsUpdateInterval()
     {
-        return conf.zbGetInt("credentials_update_interval_in_ms") == -1
-               ? conf.zbGetInt("credentials_validity_in_ms")
-               : conf.zbGetInt("credentials_update_interval_in_ms");
+        return conf.zbGetInteger("credentials_update_interval_in_ms") == -1
+               ? conf.zbGetInteger("credentials_validity_in_ms")
+               : conf.zbGetInteger("credentials_update_interval_in_ms");
     }
 
     public static void setCredentialsUpdateInterval(int updateInterval)
@@ -1433,7 +1433,7 @@ public class DatabaseDescriptor
 
     public static int getMaxValueSize()
     {
-        return conf.zbGetInt("max_value_size_in_mb") * 1024 * 1024;
+        return conf.zbGetInteger("max_value_size_in_mb") * 1024 * 1024;
     }
 
     public static void setMaxValueSize(int maxValueSizeInBytes)
@@ -1515,12 +1515,12 @@ public class DatabaseDescriptor
 
     public static int getColumnIndexSize()
     {
-        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("column_index_size_in_kb"));
+        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInteger("column_index_size_in_kb"));
     }
 
     public static int getColumnIndexSizeInKB()
     {
-        return conf.zbGetInt("column_index_size_in_kb");
+        return conf.zbGetInteger("column_index_size_in_kb");
     }
 
     @VisibleForTesting
@@ -1532,12 +1532,12 @@ public class DatabaseDescriptor
 
     public static int getColumnIndexCacheSize()
     {
-        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("column_index_cache_size_in_kb"));
+        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInteger("column_index_cache_size_in_kb"));
     }
 
     public static int getColumnIndexCacheSizeInKB()
     {
-        return conf.zbGetInt("column_index_cache_size_in_kb");
+        return conf.zbGetInteger("column_index_cache_size_in_kb");
     }
 
     public static void setColumnIndexCacheSize(int val)
@@ -1548,22 +1548,22 @@ public class DatabaseDescriptor
 
     public static int getBatchSizeWarnThreshold()
     {
-        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("batch_size_warn_threshold_in_kb"));
+        return (int) ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInteger("batch_size_warn_threshold_in_kb"));
     }
 
     public static int getBatchSizeWarnThresholdInKB()
     {
-        return conf.zbGetInt("batch_size_warn_threshold_in_kb");
+        return conf.zbGetInteger("batch_size_warn_threshold_in_kb");
     }
 
     public static long getBatchSizeFailThreshold()
     {
-        return ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInt("batch_size_fail_threshold_in_kb"));
+        return ByteUnit.KIBI_BYTES.toBytes(conf.zbGetInteger("batch_size_fail_threshold_in_kb"));
     }
 
     public static int getBatchSizeFailThresholdInKB()
     {
-        return conf.zbGetInt("batch_size_fail_threshold_in_kb");
+        return conf.zbGetInteger("batch_size_fail_threshold_in_kb");
     }
 
     public static int getUnloggedBatchAcrossPartitionsWarnThreshold()
@@ -1650,12 +1650,12 @@ public class DatabaseDescriptor
 
     public static int getStoragePort()
     {
-        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "storage_port", Integer.toString(conf.zbGetInt("storage_port"))));
+        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "storage_port", Integer.toString(conf.zbGetInteger("storage_port"))));
     }
 
     public static int getSSLStoragePort()
     {
-        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "ssl_storage_port", Integer.toString(conf.zbGetInt("ssl_storage_port"))));
+        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "ssl_storage_port", Integer.toString(conf.zbGetInteger("ssl_storage_port"))));
     }
 
     public static long nativeTransportIdleTimeout()
@@ -1783,7 +1783,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentReaders()
     {
-        return conf.zbGetInt("concurrent_reads");
+        return conf.zbGetInteger("concurrent_reads");
     }
 
     public static void setConcurrentReaders(int concurrent_reads)
@@ -1797,7 +1797,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentWriters()
     {
-        return conf.zbGetInt("concurrent_writes");
+        return conf.zbGetInteger("concurrent_writes");
     }
 
     public static void setConcurrentWriters(int concurrent_writers)
@@ -1811,7 +1811,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentCounterWriters()
     {
-        return conf.zbGetInt("concurrent_counter_writes");
+        return conf.zbGetInteger("concurrent_counter_writes");
     }
 
     public static void setConcurrentCounterWriters(int concurrent_counter_writes)
@@ -1825,7 +1825,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentViewWriters()
     {
-        return conf.zbGetInt("concurrent_materialized_view_writes");
+        return conf.zbGetInteger("concurrent_materialized_view_writes");
     }
 
     public static void setConcurrentViewWriters(int concurrent_materialized_view_writes)
@@ -1839,7 +1839,7 @@ public class DatabaseDescriptor
 
     public static int getFlushWriters()
     {
-        return conf.zbGetInt("memtable_flush_writers");
+        return conf.zbGetInteger("memtable_flush_writers");
     }
 
     public static int getConcurrentCompactors()
@@ -1854,7 +1854,7 @@ public class DatabaseDescriptor
 
     public static int getCompactionThroughputMbPerSec()
     {
-        return conf.zbGetInt("compaction_throughput_mb_per_sec");
+        return conf.zbGetInteger("compaction_throughput_mb_per_sec");
     }
 
     public static void setCompactionThroughputMbPerSec(int value)
@@ -1862,11 +1862,11 @@ public class DatabaseDescriptor
         conf.compaction_throughput_mb_per_sec = value;
     }
 
-    public static long getCompactionLargePartitionWarningThreshold() { return ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("compaction_large_partition_warning_threshold_mb")); }
+    public static long getCompactionLargePartitionWarningThreshold() { return ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInteger("compaction_large_partition_warning_threshold_mb")); }
 
     public static int getConcurrentValidations()
     {
-        return conf.zbGetInt("concurrent_validations");
+        return conf.zbGetInteger("concurrent_validations");
     }
 
     public static void setConcurrentValidations(int value)
@@ -1877,7 +1877,7 @@ public class DatabaseDescriptor
 
     public static int getConcurrentViewBuilders()
     {
-        return conf.zbGetInt("concurrent_materialized_view_builders");
+        return conf.zbGetInteger("concurrent_materialized_view_builders");
     }
 
     public static void setConcurrentViewBuilders(int value)
@@ -1902,7 +1902,7 @@ public class DatabaseDescriptor
 
     public static int getStreamThroughputOutboundMegabitsPerSec()
     {
-        return conf.zbGetInt("stream_throughput_outbound_megabits_per_sec");
+        return conf.zbGetInteger("stream_throughput_outbound_megabits_per_sec");
     }
 
     public static void setStreamThroughputOutboundMegabitsPerSec(int value)
@@ -1912,7 +1912,7 @@ public class DatabaseDescriptor
 
     public static int getInterDCStreamThroughputOutboundMegabitsPerSec()
     {
-        return conf.zbGetInt("inter_dc_stream_throughput_outbound_megabits_per_sec");
+        return conf.zbGetInteger("inter_dc_stream_throughput_outbound_megabits_per_sec");
     }
 
     public static void setInterDCStreamThroughputOutboundMegabitsPerSec(int value)
@@ -2024,7 +2024,7 @@ public class DatabaseDescriptor
 
     public static int getTombstoneWarnThreshold()
     {
-        return conf.zbGetInt("tombstone_warn_threshold");
+        return conf.zbGetInteger("tombstone_warn_threshold");
     }
 
     public static void setTombstoneWarnThreshold(int threshold)
@@ -2034,7 +2034,7 @@ public class DatabaseDescriptor
 
     public static int getTombstoneFailureThreshold()
     {
-        return conf.zbGetInt("tombstone_failure_threshold");
+        return conf.zbGetInteger("tombstone_failure_threshold");
     }
 
     public static void setTombstoneFailureThreshold(int threshold)
@@ -2067,7 +2067,7 @@ public class DatabaseDescriptor
      */
     public static int getCommitLogSegmentSize()
     {
-        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("commitlog_segment_size_in_mb"));
+        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInteger("commitlog_segment_size_in_mb"));
     }
 
     public static void setCommitLogSegmentSize(int sizeMegabytes)
@@ -2177,47 +2177,47 @@ public class DatabaseDescriptor
 
     public static int getInternodeSocketSendBufferSizeInBytes()
     {
-        return conf.zbGetInt("internode_socket_send_buffer_size_in_bytes");
+        return conf.zbGetInteger("internode_socket_send_buffer_size_in_bytes");
     }
 
     public static int getInternodeSocketReceiveBufferSizeInBytes()
     {
-        return conf.zbGetInt("internode_socket_receive_buffer_size_in_bytes");
+        return conf.zbGetInteger("internode_socket_receive_buffer_size_in_bytes");
     }
 
     public static int getInternodeApplicationSendQueueCapacityInBytes()
     {
-        return conf.zbGetInt("internode_application_send_queue_capacity_in_bytes");
+        return conf.zbGetInteger("internode_application_send_queue_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationSendQueueReserveEndpointCapacityInBytes()
     {
-        return conf.zbGetInt("internode_application_send_queue_reserve_endpoint_capacity_in_bytes");
+        return conf.zbGetInteger("internode_application_send_queue_reserve_endpoint_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationSendQueueReserveGlobalCapacityInBytes()
     {
-        return conf.zbGetInt("internode_application_send_queue_reserve_global_capacity_in_bytes");
+        return conf.zbGetInteger("internode_application_send_queue_reserve_global_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationReceiveQueueCapacityInBytes()
     {
-        return conf.zbGetInt("internode_application_receive_queue_capacity_in_bytes");
+        return conf.zbGetInteger("internode_application_receive_queue_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationReceiveQueueReserveEndpointCapacityInBytes()
     {
-        return conf.zbGetInt("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes");
+        return conf.zbGetInteger("internode_application_receive_queue_reserve_endpoint_capacity_in_bytes");
     }
 
     public static int getInternodeApplicationReceiveQueueReserveGlobalCapacityInBytes()
     {
-        return conf.zbGetInt("internode_application_receive_queue_reserve_global_capacity_in_bytes");
+        return conf.zbGetInteger("internode_application_receive_queue_reserve_global_capacity_in_bytes");
     }
 
     public static int getInternodeTcpConnectTimeoutInMS()
     {
-        return conf.zbGetInt("internode_tcp_connect_timeout_in_ms");
+        return conf.zbGetInteger("internode_tcp_connect_timeout_in_ms");
     }
 
     public static void setInternodeTcpConnectTimeoutInMS(int value)
@@ -2227,7 +2227,7 @@ public class DatabaseDescriptor
 
     public static int getInternodeTcpUserTimeoutInMS()
     {
-        return conf.zbGetInt("internode_tcp_user_timeout_in_ms");
+        return conf.zbGetInteger("internode_tcp_user_timeout_in_ms");
     }
 
     public static void setInternodeTcpUserTimeoutInMS(int value)
@@ -2237,7 +2237,7 @@ public class DatabaseDescriptor
 
     public static int getInternodeStreamingTcpUserTimeoutInMS()
     {
-        return conf.zbGetInt("internode_streaming_tcp_user_timeout_in_ms");
+        return conf.zbGetInteger("internode_streaming_tcp_user_timeout_in_ms");
     }
 
     public static void setInternodeStreamingTcpUserTimeoutInMS(int value)
@@ -2267,7 +2267,7 @@ public class DatabaseDescriptor
      */
     public static int getNativeTransportPort()
     {
-        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "native_transport_port", Integer.toString(conf.zbGetInt("native_transport_port"))));
+        return Integer.parseInt(System.getProperty(Config.PROPERTY_PREFIX + "native_transport_port", Integer.toString(conf.zbGetInteger("native_transport_port"))));
     }
 
     @VisibleForTesting
@@ -2289,7 +2289,7 @@ public class DatabaseDescriptor
 
     public static int getNativeTransportMaxThreads()
     {
-        return conf.zbGetInt("native_transport_max_threads");
+        return conf.zbGetInteger("native_transport_max_threads");
     }
 
     public static void setNativeTransportMaxThreads(int max_threads)
@@ -2299,7 +2299,7 @@ public class DatabaseDescriptor
 
     public static int getNativeTransportMaxFrameSize()
     {
-        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("native_transport_max_frame_size_in_mb"));
+        return (int) ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInteger("native_transport_max_frame_size_in_mb"));
     }
 
     public static long getNativeTransportMaxConcurrentConnections()
@@ -2379,7 +2379,7 @@ public class DatabaseDescriptor
 
     public static int getCommitLogSyncPeriod()
     {
-        return conf.zbGetInt("commitlog_sync_period_in_ms");
+        return conf.zbGetInteger("commitlog_sync_period_in_ms");
     }
 
     public static long getPeriodicCommitLogSyncBlock()
@@ -2525,7 +2525,7 @@ public class DatabaseDescriptor
 
     public static int getMaxHintWindow()
     {
-        return conf.zbGetInt("max_hint_window_in_ms");
+        return conf.zbGetInteger("max_hint_window_in_ms");
     }
 
     public static File getHintsDirectory()
@@ -2542,7 +2542,7 @@ public class DatabaseDescriptor
 
     public static int getDynamicUpdateInterval()
     {
-        return conf.zbGetInt("dynamic_snitch_update_interval_in_ms");
+        return conf.zbGetInteger("dynamic_snitch_update_interval_in_ms");
     }
     public static void setDynamicUpdateInterval(int dynamicUpdateInterval)
     {
@@ -2551,7 +2551,7 @@ public class DatabaseDescriptor
 
     public static int getDynamicResetInterval()
     {
-        return conf.zbGetInt("dynamic_snitch_reset_interval_in_ms");
+        return conf.zbGetInteger("dynamic_snitch_reset_interval_in_ms");
     }
     public static void setDynamicResetInterval(int dynamicResetInterval)
     {
@@ -2591,7 +2591,7 @@ public class DatabaseDescriptor
 
     public static int getHintedHandoffThrottleInKB()
     {
-        return conf.zbGetInt("hinted_handoff_throttle_in_kb");
+        return conf.zbGetInteger("hinted_handoff_throttle_in_kb");
     }
 
     public static void setHintedHandoffThrottleInKB(int throttleInKB)
@@ -2601,7 +2601,7 @@ public class DatabaseDescriptor
 
     public static int getBatchlogReplayThrottleInKB()
     {
-        return conf.zbGetInt("batchlog_replay_throttle_in_kb");
+        return conf.zbGetInteger("batchlog_replay_throttle_in_kb");
     }
 
     public static void setBatchlogReplayThrottleInKB(int throttleInKB)
@@ -2611,17 +2611,17 @@ public class DatabaseDescriptor
 
     public static int getMaxHintsDeliveryThreads()
     {
-        return conf.zbGetInt("max_hints_delivery_threads");
+        return conf.zbGetInteger("max_hints_delivery_threads");
     }
 
     public static int getHintsFlushPeriodInMS()
     {
-        return conf.zbGetInt("hints_flush_period_in_ms");
+        return conf.zbGetInteger("hints_flush_period_in_ms");
     }
 
     public static long getMaxHintsFileSize()
     {
-        return  ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInt("max_hints_file_size_in_mb"));
+        return  ByteUnit.MEBI_BYTES.toBytes(conf.zbGetInteger("max_hints_file_size_in_mb"));
     }
 
     public static ParameterizedClass getHintsCompression()
@@ -2711,7 +2711,7 @@ public class DatabaseDescriptor
 
     public static int getSSTablePreemptiveOpenIntervalInMB()
     {
-        return FBUtilities.isWindows ? -1 : conf.zbGetInt("sstable_preemptive_open_interval_in_mb");
+        return FBUtilities.isWindows ? -1 : conf.zbGetInteger("sstable_preemptive_open_interval_in_mb");
     }
     public static void setSSTablePreemptiveOpenIntervalInMB(int mb)
     {
@@ -2725,7 +2725,7 @@ public class DatabaseDescriptor
 
     public static int getTrickleFsyncIntervalInKb()
     {
-        return conf.zbGetInt("trickle_fsync_interval_in_kb");
+        return conf.zbGetInteger("trickle_fsync_interval_in_kb");
     }
 
     public static long getKeyCacheSizeInMB()
@@ -2740,7 +2740,7 @@ public class DatabaseDescriptor
 
     public static int getKeyCacheSavePeriod()
     {
-        return conf.zbGetInt("key_cache_save_period");
+        return conf.zbGetInteger("key_cache_save_period");
     }
 
     public static void setKeyCacheSavePeriod(int keyCacheSavePeriod)
@@ -2750,7 +2750,7 @@ public class DatabaseDescriptor
 
     public static int getKeyCacheKeysToSave()
     {
-        return conf.zbGetInt("key_cache_keys_to_save");
+        return conf.zbGetInteger("key_cache_keys_to_save");
     }
 
     public static void setKeyCacheKeysToSave(int keyCacheKeysToSave)
@@ -2776,7 +2776,7 @@ public class DatabaseDescriptor
 
     public static int getRowCacheSavePeriod()
     {
-        return conf.zbGetInt("row_cache_save_period");
+        return conf.zbGetInteger("row_cache_save_period");
     }
 
     public static void setRowCacheSavePeriod(int rowCacheSavePeriod)
@@ -2786,7 +2786,7 @@ public class DatabaseDescriptor
 
     public static int getRowCacheKeysToSave()
     {
-        return conf.zbGetInt("row_cache_keys_to_save");
+        return conf.zbGetInteger("row_cache_keys_to_save");
     }
 
     public static long getCounterCacheSizeInMB()
@@ -2801,7 +2801,7 @@ public class DatabaseDescriptor
 
     public static int getCounterCacheSavePeriod()
     {
-        return conf.zbGetInt("counter_cache_save_period");
+        return conf.zbGetInteger("counter_cache_save_period");
     }
 
     public static void setCounterCacheSavePeriod(int counterCacheSavePeriod)
@@ -2811,7 +2811,7 @@ public class DatabaseDescriptor
 
     public static int getCacheLoadTimeout()
     {
-        return conf.zbGetInt("cache_load_timeout_seconds");
+        return conf.zbGetInteger("cache_load_timeout_seconds");
     }
 
     @VisibleForTesting
@@ -2822,7 +2822,7 @@ public class DatabaseDescriptor
 
     public static int getCounterCacheKeysToSave()
     {
-        return conf.zbGetInt("counter_cache_keys_to_save");
+        return conf.zbGetInteger("counter_cache_keys_to_save");
     }
 
     public static void setCounterCacheKeysToSave(int counterCacheKeysToSave)
@@ -2925,7 +2925,7 @@ public class DatabaseDescriptor
 
     public static int getIndexSummaryResizeIntervalInMinutes()
     {
-        return conf.zbGetInt("index_summary_resize_interval_in_minutes");
+        return conf.zbGetInteger("index_summary_resize_interval_in_minutes");
     }
 
     public static boolean hasLargeAddressSpace()
@@ -2946,17 +2946,17 @@ public class DatabaseDescriptor
 
     public static int getTracetypeRepairTTL()
     {
-        return conf.zbGetInt("tracetype_repair_ttl");
+        return conf.zbGetInteger("tracetype_repair_ttl");
     }
 
     public static int getTracetypeQueryTTL()
     {
-        return conf.zbGetInt("tracetype_query_ttl");
+        return conf.zbGetInteger("tracetype_query_ttl");
     }
 
     public static int getWindowsTimerInterval()
     {
-        return conf.zbGetInt("windows_timer_interval");
+        return conf.zbGetInteger("windows_timer_interval");
     }
 
     public static long getPreparedStatementsCacheSizeMB()
@@ -3057,7 +3057,7 @@ public class DatabaseDescriptor
 
     public static long getGCLogThreshold()
     {
-        return conf.zbGetInt("gc_log_threshold_in_ms");
+        return conf.zbGetInteger("gc_log_threshold_in_ms");
     }
 
     public static EncryptionContext getEncryptionContext()
@@ -3067,7 +3067,7 @@ public class DatabaseDescriptor
 
     public static long getGCWarnThreshold()
     {
-        return conf.zbGetInt("gc_warn_threshold_in_ms");
+        return conf.zbGetInteger("gc_warn_threshold_in_ms");
     }
 
     public static boolean isCDCEnabled()
@@ -3088,7 +3088,7 @@ public class DatabaseDescriptor
 
     public static int getCDCSpaceInMB()
     {
-        return conf.zbGetInt("cdc_total_space_in_mb");
+        return conf.zbGetInteger("cdc_total_space_in_mb");
     }
 
     @VisibleForTesting
@@ -3099,7 +3099,7 @@ public class DatabaseDescriptor
 
     public static int getCDCDiskCheckInterval()
     {
-        return conf.zbGetInt("cdc_free_space_check_interval_ms");
+        return conf.zbGetInteger("cdc_free_space_check_interval_ms");
     }
 
     @VisibleForTesting
@@ -3140,7 +3140,7 @@ public class DatabaseDescriptor
 
     public static int getRepairCommandPoolSize()
     {
-        return conf.zbGetInt("repair_command_pool_size");
+        return conf.zbGetInteger("repair_command_pool_size");
     }
 
     public static Config.RepairCommandPoolFullStrategy getRepairCommandPoolFullStrategy()
@@ -3177,12 +3177,12 @@ public class DatabaseDescriptor
 
     public static int maxConcurrentAutoUpgradeTasks()
     {
-        return conf.zbGetInt("max_concurrent_automatic_sstable_upgrades");
+        return conf.zbGetInteger("max_concurrent_automatic_sstable_upgrades");
     }
 
     public static void setMaxConcurrentAutoUpgradeTasks(int value)
     {
-        if (conf.zbGetInt("max_concurrent_automatic_sstable_upgrades") != value)
+        if (conf.zbGetInteger("max_concurrent_automatic_sstable_upgrades") != value)
             logger.debug("Changing max_concurrent_automatic_sstable_upgrades to {}", value);
         validateMaxConcurrentAutoUpgradeTasksConf(value);
         conf.max_concurrent_automatic_sstable_upgrades = value;
@@ -3433,7 +3433,7 @@ public class DatabaseDescriptor
 
     public static int tableCountWarnThreshold()
     {
-        return conf.zbGetInt("table_count_warn_threshold");
+        return conf.zbGetInteger("table_count_warn_threshold");
     }
 
     public static void setTableCountWarnThreshold(int value)
@@ -3443,7 +3443,7 @@ public class DatabaseDescriptor
 
     public static int keyspaceCountWarnThreshold()
     {
-        return conf.zbGetInt("keyspace_count_warn_threshold");
+        return conf.zbGetInteger("keyspace_count_warn_threshold");
     }
 
     public static void setKeyspaceCountWarnThreshold(int value)

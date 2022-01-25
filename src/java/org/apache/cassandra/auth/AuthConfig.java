@@ -56,8 +56,8 @@ public final class AuthConfig
         // work with PasswordAuthenticator, so log a message if some other authenticator
         // is in use and non-default values are detected
         if (!(authenticator instanceof PasswordAuthenticator)
-            && (conf.zbGetInt("credentials_update_interval_in_ms") != -1
-                || conf.zbGetInt("credentials_validity_in_ms") != 2000
+            && (conf.zbGetInteger("credentials_update_interval_in_ms") != -1
+                || conf.zbGetInteger("credentials_validity_in_ms") != 2000
                 || conf.credentials_cache_max_entries != 1000))
         {
             logger.info("Configuration options credentials_update_interval_in_ms, credentials_validity_in_ms and " +

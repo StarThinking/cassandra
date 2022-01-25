@@ -91,37 +91,6 @@ public class Config
         return realValue;
     }
     
-    public int zbGetInt(String paraName) {
-        int realValue = 0;
-        try {
-            Field privateField = Config.class.getDeclaredField(paraName);
-            privateField.setAccessible(true);
-            int fieldValue = (Integer) privateField.get(this);
-            String confAgentRet = ConfAgent.whichV(paraName, String.valueOf(fieldValue), componentType, componentId);
-            realValue = Integer.parseInt(confAgentRet);
-            
-            // print only if para,value pair not processed before
-            Set<String> hasKey = Config.zbGetCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
-                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-                long pid = Long.parseLong(jvmName.split("@")[0]);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetInt " + pid + " " + paraName + " " + realValue + "\n");
-                writer.write("zbGetInt " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + realValue + "\n");
-                writer.close();    
-            }
-            
-            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
-            //logger.warn("[msx] zbGetInt " + pid + " " + paraName + " " + realValue);
-        } catch(Exception e) {
-            logger.error("[msx] error happens in zbGet", e);
-            System.exit(1);
-        }
-        return realValue;
-    }
-    
     public Integer zbGetInteger(String paraName) {
         Integer realValue = 0;
         try {
@@ -537,7 +506,7 @@ public class Config
 
     public volatile int concurrent_validations;
     public RepairCommandPoolFullStrategy repair_command_pool_full_strategy = RepairCommandPoolFullStrategy.queue;
-    public int repair_command_pool_size = zbGetInt("concurrent_validations");
+    public int repair_command_pool_size = zbGetInteger("concurrent_validations");
 
     /**
      * When a node first starts up it intially considers all other peers as DOWN and is disconnected from all of them.
