@@ -886,6 +886,7 @@ public class CassandraDaemon
 
     public static void main(String[] args)
     {
+        DatabaseDescriptor.updateComponentTypeAndId("CassandraDaemon");
         instance.activate();
     }
 
