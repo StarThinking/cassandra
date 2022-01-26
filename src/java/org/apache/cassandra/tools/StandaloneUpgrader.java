@@ -48,6 +48,7 @@ public class StandaloneUpgrader
 
     public static void main(String args[])
     {
+        DatabaseDescriptor.updateComponentTypeAndId("StandaloneUpgrader");
         Options options = Options.parseArgs(args);
         if (Boolean.getBoolean(Util.ALLOW_TOOL_REINIT_FOR_TEST))
             DatabaseDescriptor.toolInitialization(false); //Necessary for testing

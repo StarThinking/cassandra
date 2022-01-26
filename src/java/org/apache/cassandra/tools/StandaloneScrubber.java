@@ -75,6 +75,7 @@ public class StandaloneScrubber
 
     public static void main(String args[])
     {
+        DatabaseDescriptor.updateComponentTypeAndId("StandaloneScrubber");
         Options options = Options.parseArgs(args);
 
         if (Boolean.getBoolean(Util.ALLOW_TOOL_REINIT_FOR_TEST))

@@ -51,6 +51,7 @@ public class StandaloneSplitter
 
     public static void main(String args[])
     {
+        DatabaseDescriptor.updateComponentTypeAndId("StandaloneSplitter");
         Options options = Options.parseArgs(args);
         if (Boolean.getBoolean(Util.ALLOW_TOOL_REINIT_FOR_TEST))
             DatabaseDescriptor.toolInitialization(false); //Necessary for testing

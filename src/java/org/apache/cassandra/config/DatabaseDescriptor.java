@@ -165,26 +165,37 @@ public class DatabaseDescriptor
                                        ? new CommitLogSegmentManagerCDC(c, DatabaseDescriptor.getCommitLogLocation())
                                        : new CommitLogSegmentManagerStandard(c, DatabaseDescriptor.getCommitLogLocation());
 
-    private static int updateComponentId(long pid, String componentType) {
-        int lineCount = 0;
+    public static void updateComponentTypeAndId(String componentType) {
         try {
+            // update para usage log
+            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+            long pid = Long.parseLong(jvmName.split("@")[0]);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
+            writer.write("init " + componentType + " pid " + pid + "\n");
+            writer.close();
+            
+            // update id log
             final String myIdPath = "/tmp/my_" + componentType + "_id.txt";
             File myIdPathFile = new File(myIdPath);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(myIdPathFile, true));
+            writer = new BufferedWriter(new FileWriter(myIdPathFile, true));
             writer.write(pid + "\n");
             writer.close();
+            
             BufferedReader reader = new BufferedReader(new FileReader(myIdPathFile));
             String buffer = "";
             buffer = reader.readLine();
+            int lineCount = 0;
             while (buffer != null) {
                 buffer = reader.readLine();
                 lineCount++;
             }
             reader.close();
+
+            Config.componentType = componentType;
+            Config.componentId = lineCount;
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return lineCount;
     }
 
     public static void daemonInitialization() throws ConfigurationException
@@ -194,19 +205,6 @@ public class DatabaseDescriptor
 
     public static void daemonInitialization(Supplier<Config> config) throws ConfigurationException
     {
-        try {
-            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-            long pid = Long.parseLong(jvmName.split("@")[0]);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-            writer.write("init daemon pid " + pid + "\n");
-            writer.close();
-            // update component type and id
-            Config.componentType = "Daemon";
-            Config.componentId = updateComponentId(pid, Config.componentType);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        //logger.info("[msx-init] daemonInitialization is called");
         if (toolInitialized)
             throw new AssertionError("toolInitialization() already called");
         if (clientInitialized)
@@ -240,19 +238,6 @@ public class DatabaseDescriptor
      */
     public static void toolInitialization(boolean failIfDaemonOrClient)
     {
-        try {
-            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-            long pid = Long.parseLong(jvmName.split("@")[0]);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-            writer.write("init tool pid " + pid + "\n");
-            writer.close();
-            // update component type and id
-            Config.componentType = "Tool";
-            Config.componentId = updateComponentId(pid, Config.componentType);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        //logger.info("[msx-init] toolInitialization is called");
         if (!failIfDaemonOrClient && (daemonInitialized || clientInitialized))
         {
             return;
@@ -298,19 +283,6 @@ public class DatabaseDescriptor
      */
     public static void clientInitialization(boolean failIfDaemonOrTool)
     {
-        try {
-            String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-            long pid = Long.parseLong(jvmName.split("@")[0]);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-            writer.write("init client pid " + pid + "\n");
-            writer.close();
-            // update component type and id
-            Config.componentType = "Client";
-            Config.componentId = updateComponentId(pid, Config.componentType);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        //logger.info("[msx-init] clientInitialization is called");
         if (!failIfDaemonOrTool && (daemonInitialized || toolInitialized))
         {
             return;

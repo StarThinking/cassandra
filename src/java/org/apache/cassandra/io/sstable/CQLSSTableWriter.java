@@ -99,6 +99,7 @@ public class CQLSSTableWriter implements Closeable
 
     static
     {
+        DatabaseDescriptor.updateComponentTypeAndId("CQLSSTableWriter");
         DatabaseDescriptor.clientInitialization(false);
         // Partitioner is not set in client mode.
         if (DatabaseDescriptor.getPartitioner() == null)

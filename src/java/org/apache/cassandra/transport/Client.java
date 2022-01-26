@@ -243,6 +243,7 @@ public class Client extends SimpleClient
 
     public static void main(String[] args) throws Exception
     {
+        DatabaseDescriptor.updateComponentTypeAndId("Client");
         DatabaseDescriptor.clientInitialization();
 
         // Print usage if no argument is specified.
