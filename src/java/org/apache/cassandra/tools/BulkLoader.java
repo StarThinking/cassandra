@@ -47,14 +47,14 @@ public class BulkLoader
 {
     public static void main(String args[]) throws BulkLoadException
     {
-        DatabaseDescriptor.updateComponentTypeAndId("BulkLoader");
-        LoaderOptions options = LoaderOptions.builder().parseArgs(args).build();
-        load(options);
+        load(args);
     }
 
-    public static void load(LoaderOptions options) throws BulkLoadException
+    public static void load(String args[]) throws BulkLoadException
     {
+        // msx
         DatabaseDescriptor.toolInitialization();
+        LoaderOptions options = LoaderOptions.builder().parseArgs(args).build();
         OutputHandler handler = new OutputHandler.SystemOutput(options.verbose, options.debug);
         SSTableLoader loader = new SSTableLoader(
                 options.directory.getAbsoluteFile(),

@@ -495,7 +495,6 @@ public class SSTableMetadataViewer
      */
     public static void main(String[] args) throws IOException
     {
-        DatabaseDescriptor.updateComponentTypeAndId("SSTableMetadataViewer");
         CommandLineParser parser = new PosixParser();
 
         Option disableColors = new Option(COLORS, "colors", false, "Use ANSI color sequences");

@@ -107,7 +107,6 @@ public class SSTableExport
     @SuppressWarnings("resource")
     public static void main(String[] args) throws ConfigurationException
     {
-        DatabaseDescriptor.updateComponentTypeAndId("SSTableExport");
         CommandLineParser parser = new PosixParser();
         try
         {

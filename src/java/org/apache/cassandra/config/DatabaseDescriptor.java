@@ -165,7 +165,7 @@ public class DatabaseDescriptor
                                        ? new CommitLogSegmentManagerCDC(c, DatabaseDescriptor.getCommitLogLocation())
                                        : new CommitLogSegmentManagerStandard(c, DatabaseDescriptor.getCommitLogLocation());
 
-    public static void updateComponentTypeAndId(String componentType) {
+    private static void updateComponentTypeAndId(String componentType) {
         try {
             // update para usage log
             String jvmName = ManagementFactory.getRuntimeMXBean().getName();
@@ -204,7 +204,8 @@ public class DatabaseDescriptor
     }
 
     public static void daemonInitialization(Supplier<Config> config) throws ConfigurationException
-    {
+    {   
+        DatabaseDescriptor.updateComponentTypeAndId("CassandraDaemon");
         if (toolInitialized)
             throw new AssertionError("toolInitialization() already called");
         if (clientInitialized)
@@ -238,6 +239,7 @@ public class DatabaseDescriptor
      */
     public static void toolInitialization(boolean failIfDaemonOrClient)
     {
+        DatabaseDescriptor.updateComponentTypeAndId("Tool");
         if (!failIfDaemonOrClient && (daemonInitialized || clientInitialized))
         {
             return;
@@ -283,6 +285,7 @@ public class DatabaseDescriptor
      */
     public static void clientInitialization(boolean failIfDaemonOrTool)
     {
+        DatabaseDescriptor.updateComponentTypeAndId("Client");
         if (!failIfDaemonOrTool && (daemonInitialized || toolInitialized))
         {
             return;

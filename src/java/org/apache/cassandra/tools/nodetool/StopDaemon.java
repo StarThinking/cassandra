@@ -30,7 +30,6 @@ public class StopDaemon extends NodeToolCmd
     @Override
     public void execute(NodeProbe probe)
     {
-        DatabaseDescriptor.updateComponentTypeAndId("StopDaemon");
         try
         {
             DatabaseDescriptor.toolInitialization();
