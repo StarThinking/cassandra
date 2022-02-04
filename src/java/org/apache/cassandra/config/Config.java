@@ -60,30 +60,40 @@ public class Config
     public static String componentType = "";
     public static int componentId = 0;
 
-    public boolean zbGetBoolean(String paraName) {
-        boolean realValue = false;
+    private static void zbGetProfile(String type, String paraName, String realValueStr) {
         try {
-            Field privateField = Config.class.getDeclaredField(paraName);
-            privateField.setAccessible(true);
-            boolean fieldValue = (Boolean) privateField.get(this);
-            String confAgentRet = ConfAgent.whichV(paraName, String.valueOf(fieldValue), componentType, componentId);
-            realValue = Boolean.parseBoolean(confAgentRet);
-            
             // print only if para,value pair not processed before
             Set<String> hasKey = Config.zbGetCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
+            if (hasKey == null || (hasKey != null && !hasKey.contains(realValueStr))) {
                 String jvmName = ManagementFactory.getRuntimeMXBean().getName();
                 long pid = Long.parseLong(jvmName.split("@")[0]);
                 BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetBoolean " + pid + " " + paraName + " " + realValue + "\n");
-                writer.write("zbGetBoolean " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + realValue + "\n");
+                writer.write(type + " " + pid + " " + componentType + "." + componentId
+                    + " " + paraName + " " + realValueStr + "\n");
                 writer.close();    
             }
-            
             Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
-            //logger.warn("[msx] zbGetBoolean " + pid + " " + paraName + " " + realValue);
+            Config.zbGetCache.get(paraName).add(String.valueOf(realValueStr));
+        } catch(Exception e) {
+            logger.error("[msx] error happens in zbGetProfile", e);
+            System.exit(1);
+        }
+    }
+
+    public Boolean zbGetBoolean(String paraName) {
+        Boolean realValue = false;
+        try {
+            Field privateField = Config.class.getDeclaredField(paraName);
+            privateField.setAccessible(true);
+            Boolean fieldValue = (Boolean) privateField.get(this);
+            String confAgentRet = ConfAgent.whichV(paraName, String.valueOf(fieldValue), componentType, componentId);
+            // if fieldValue is null, then confAgentRet == null
+            // if v1 or v2 is literally null, then confAgentRet.equals("null")
+            if (confAgentRet == null || confAgentRet.equals("null"))
+                realValue = null;
+            else
+                realValue = Boolean.parseBoolean(confAgentRet);
+            zbGetProfile("zbGetBoolean", paraName, String.valueOf(realValue));
         } catch(Exception e) {
             logger.error("[msx] error happens in zbGet", e);
             System.exit(1);
@@ -104,21 +114,7 @@ public class Config
                 realValue = null;
             else
                 realValue = Integer.parseInt(confAgentRet);
-
-            // print only if para,value pair not processed before
-            Set<String> hasKey = Config.zbGetCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
-                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-                long pid = Long.parseLong(jvmName.split("@")[0]);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetInteger " + pid + " " + paraName + " " + realValue + "\n");
-                writer.write("zbGetInteger " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + realValue + "\n");
-                writer.close();
-            }
-
-            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
+            zbGetProfile("zbGetInteger", paraName, String.valueOf(realValue));
         } catch(Exception e) {
             logger.error("[msx] error happens in zbGet", e);
             System.exit(1);
@@ -139,21 +135,7 @@ public class Config
                 realValue = null;
             else
                 realValue = Long.parseLong(confAgentRet);
-
-            // print only if para,value pair not processed before
-            Set<String> hasKey = Config.zbGetCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
-                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-                long pid = Long.parseLong(jvmName.split("@")[0]);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetLong " + pid + " " + paraName + " " + realValue + "\n");
-                writer.write("zbGetLong " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + realValue + "\n");
-                writer.close();
-            }
-
-            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
+            zbGetProfile("zbGetLong", paraName, String.valueOf(realValue));
         } catch(Exception e) {
             logger.error("[msx] error happens in zbGet", e);
             System.exit(1);
@@ -174,21 +156,7 @@ public class Config
                 realValue = null;
             else
                 realValue = Double.parseDouble(confAgentRet);
-
-            // print only if para,value pair not processed before
-            Set<String> hasKey = Config.zbGetCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
-                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-                long pid = Long.parseLong(jvmName.split("@")[0]);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetDouble " + pid + " " + paraName + " " + realValue + "\n");
-                writer.write("zbGetDouble " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + realValue + "\n");
-                writer.close();
-            }
-
-            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
+            zbGetProfile("zbGetDouble", paraName, String.valueOf(realValue));
         } catch(Exception e) {
             logger.error("[msx] error happens in zbGet", e);
             System.exit(1);
@@ -209,28 +177,35 @@ public class Config
                 realValue = null;
             else
                 realValue = Float.parseFloat(confAgentRet);
-
-            // print only if para,value pair not processed before
-            Set<String> hasKey = Config.zbGetCache.get(paraName);
-            if (hasKey == null || (hasKey != null && !hasKey.contains(String.valueOf(realValue)))) {
-                String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-                long pid = Long.parseLong(jvmName.split("@")[0]);
-                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/my_log.txt"), true));
-                //writer.write("zbGetFloat " + pid + " " + paraName + " " + realValue + "\n");
-                writer.write("zbGetFloat " + pid + " " + componentType + "." + componentId
-                    + " " + paraName + " " + realValue + "\n");
-                writer.close();
-            }
-
-            Config.zbGetCache.putIfAbsent(paraName, new HashSet<String>());
-            Config.zbGetCache.get(paraName).add(String.valueOf(realValue));
+            zbGetProfile("zbGetFloat", paraName, String.valueOf(realValue));
         } catch(Exception e) {
             logger.error("[msx] error happens in zbGet", e);
             System.exit(1);
         }
         return realValue;
     }
-    
+
+    public <T extends Enum<T>> T zbGetEnum(String paraName, T defaultValue) {
+        T realValue = defaultValue;
+        try {
+            Field privateField = Config.class.getDeclaredField(paraName);
+            privateField.setAccessible(true);
+            T fieldValue = (T) privateField.get(this);
+            String confAgentRet = ConfAgent.whichV(paraName, String.valueOf(fieldValue), componentType, componentId);
+            // if fieldValue is null, then confAgentRet == null
+            // if v1 or v2 is literally null, then confAgentRet.equals("null")
+            if (confAgentRet == null || confAgentRet.equals("null"))
+                realValue = null;
+            else
+                realValue = Enum.valueOf(defaultValue.getDeclaringClass(), confAgentRet);
+            zbGetProfile("zbGetEnum", paraName, String.valueOf(realValue));
+        } catch(Exception e) {
+            logger.error("[msx] error happens in zbGet", e);
+            System.exit(1);
+        }
+        return realValue;
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
     /*
