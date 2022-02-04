@@ -49,7 +49,7 @@ public class YamlConfigurationLoaderTest
 
         Config config = YamlConfigurationLoader.fromMap(map, Config.class);
         assertEquals(storagePort, config.storage_port); // Check a simple integer
-        assertEquals(commitLogSync, config.commitlog_sync); // Check an enum
+        assertEquals(commitLogSync, config.zbGetEnum("commitlog_sync", Config.CommitLogSync.batch)); // Check an enum
         assertEquals(seedProvider, config.seed_provider); // Check a parameterized class
         assertEquals(false, config.client_encryption_options.optional); // Check a nested object
         assertEquals(true, config.client_encryption_options.enabled); // Check a nested object

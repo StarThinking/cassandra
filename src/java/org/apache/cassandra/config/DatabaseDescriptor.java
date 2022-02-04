@@ -414,12 +414,12 @@ public class DatabaseDescriptor
         //InetAddressAndPort and get the right defaults
         InetAddressAndPort.initializeDefaultPort(getStoragePort());
 
-        if (conf.commitlog_sync == null)
+        if (conf.zbGetEnum("commitlog_sync", Config.CommitLogSync.batch) == null)
         {
             throw new ConfigurationException("Missing required directive CommitLogSync", false);
         }
 
-        if (conf.commitlog_sync == Config.CommitLogSync.batch)
+        if (conf.zbGetEnum("commitlog_sync", Config.CommitLogSync.batch) == Config.CommitLogSync.batch)
         {
             if (conf.zbGetInteger("commitlog_sync_period_in_ms") != 0)
             {
@@ -427,7 +427,7 @@ public class DatabaseDescriptor
             }
             logger.debug("Syncing log with batch mode");
         }
-        else if (conf.commitlog_sync == CommitLogSync.group)
+        else if (conf.zbGetEnum("commitlog_sync", Config.CommitLogSync.batch) == CommitLogSync.group)
         {
             if (Double.isNaN(conf.zbGetDouble("commitlog_sync_group_window_in_ms")) || conf.zbGetDouble("commitlog_sync_group_window_in_ms") <= 0d)
             {
@@ -507,7 +507,7 @@ public class DatabaseDescriptor
 
         // round down for SSDs and round up for spinning disks
         if (conf.file_cache_round_up == null)
-            conf.file_cache_round_up = conf.disk_optimization_strategy == Config.DiskOptimizationStrategy.spinning;
+            conf.file_cache_round_up = conf.zbGetEnum("disk_optimization_strategy", Config.DiskOptimizationStrategy.ssd) == Config.DiskOptimizationStrategy.spinning;
 
         if (conf.zbGetInteger("memtable_offheap_space_in_mb") == null)
             conf.memtable_offheap_space_in_mb = (int) (Runtime.getRuntime().maxMemory() / (4 * 1048576));
@@ -833,7 +833,7 @@ public class DatabaseDescriptor
             throw new ConfigurationException("max_value_size_in_mb must be smaller than 2048, but was "
                     + conf.zbGetInteger("max_value_size_in_mb"), false);
 
-        switch (conf.disk_optimization_strategy)
+        switch (conf.zbGetEnum("disk_optimization_strategy", Config.DiskOptimizationStrategy.ssd))
         {
             case ssd:
                 diskOptimizationStrategy = new SsdDiskOptimizationStrategy(conf.disk_optimization_page_cross_chance);
@@ -1969,7 +1969,7 @@ public class DatabaseDescriptor
 
     public static Config.FlushCompression getFlushCompression()
     {
-        return conf.flush_compression;
+        return conf.zbGetEnum("flush_compression", Config.FlushCompression.fast);
     }
 
     public static void setFlushCompression(Config.FlushCompression compression)
@@ -2372,7 +2372,7 @@ public class DatabaseDescriptor
 
     public static Config.CommitLogSync getCommitLogSync()
     {
-        return conf.commitlog_sync;
+        return conf.zbGetEnum("commitlog_sync", Config.CommitLogSync.batch);
     }
 
     public static void setCommitLogSync(CommitLogSync sync)
@@ -2411,7 +2411,7 @@ public class DatabaseDescriptor
 
     public static Config.DiskFailurePolicy getDiskFailurePolicy()
     {
-        return conf.disk_failure_policy;
+        return conf.zbGetEnum("disk_failure_policy", Config.DiskFailurePolicy.ignore);
     }
 
     public static void setCommitFailurePolicy(Config.CommitFailurePolicy policy)
@@ -2421,7 +2421,7 @@ public class DatabaseDescriptor
 
     public static Config.CommitFailurePolicy getCommitFailurePolicy()
     {
-        return conf.commit_failure_policy;
+        return conf.zbGetEnum("commit_failure_policy", Config.CommitFailurePolicy.stop);
     }
 
     public static boolean isSnapshotBeforeCompaction()
@@ -2832,7 +2832,7 @@ public class DatabaseDescriptor
 
     public static Config.InternodeCompression internodeCompression()
     {
-        return conf.internode_compression;
+        return conf.zbGetEnum("internode_compression", Config.InternodeCompression.none);
     }
 
     public static void setInternodeCompression(Config.InternodeCompression compression)
@@ -2857,7 +2857,7 @@ public class DatabaseDescriptor
 
     public static Config.MemtableAllocationType getMemtableAllocationType()
     {
-        return conf.memtable_allocation_type;
+        return conf.zbGetEnum("memtable_allocation_type", Config.MemtableAllocationType.heap_buffers);
     }
 
     public static int getRepairSessionMaxTreeDepth()
@@ -3183,7 +3183,7 @@ public class DatabaseDescriptor
 
     public static Config.CorruptedTombstoneStrategy getCorruptedTombstoneStrategy()
     {
-        return conf.corrupted_tombstone_strategy;
+        return conf.zbGetEnum("corrupted_tombstone_strategy", Config.CorruptedTombstoneStrategy.disabled);
     }
 
     public static void setCorruptedTombstoneStrategy(Config.CorruptedTombstoneStrategy strategy)
