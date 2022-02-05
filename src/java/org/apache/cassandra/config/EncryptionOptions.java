@@ -63,6 +63,21 @@ public class EncryptionOptions
     public final String store_type;
     public final boolean require_client_auth;
     public final boolean require_endpoint_verification;
+
+    // msx
+    public Boolean zbGetEnabled(String paraName) {
+        Boolean realValue = null;
+        Boolean fieldValue = this.enabled;
+        String complexParaName = "client_encryption_options." + paraName;
+        String confAgentRet = ConfAgent.whichV(complexParaName, String.valueOf(fieldValue), Config.componentType, Config.componentId);
+        if (confAgentRet == null || confAgentRet.equals("null"))
+            realValue = null;
+        else
+            realValue = Boolean.parseBoolean(confAgentRet);
+        Config.zbGetProfile("zbGetComplex", complexParaName, String.valueOf(realValue));
+        return realValue;
+    }
+
     // ServerEncryptionOptions does not use the enabled flag at all instead using the existing
     // internode_encryption option. So we force this private and expose through isEnabled
     // so users of ServerEncryptionOptions can't accidentally use this when they should use isEnabled
@@ -461,9 +476,17 @@ public class EncryptionOptions
 
     public static class ServerEncryptionOptions extends EncryptionOptions
     {
+        // msx
         public InternodeEncryption zbGetInternodeEncryption(String paraName) {
-            String confAgentRet = ConfAgent.whichV(paraName, this.internode_encryption.name(), Config.componentType, Config.componentId);
-            InternodeEncryption realValue = InternodeEncryption.valueOf(confAgentRet);
+            InternodeEncryption realValue = null;
+            String fieldValueStr = this.internode_encryption.name();
+            String complexParaName = "server_encryption_options." + paraName;
+            String confAgentRet = ConfAgent.whichV(complexParaName, fieldValueStr, Config.componentType, Config.componentId);
+            if (confAgentRet == null || confAgentRet.equals("null"))
+                realValue = null;
+            else
+                realValue = InternodeEncryption.valueOf(confAgentRet);
+            Config.zbGetProfile("zbGetComplex", complexParaName, String.valueOf(realValue));
             return realValue;
         }
 

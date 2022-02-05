@@ -60,7 +60,7 @@ public class Config
     public static String componentType = "";
     public static int componentId = 0;
 
-    private static void zbGetProfile(String type, String paraName, String realValueStr) {
+    public static void zbGetProfile(String type, String paraName, String realValueStr) {
         try {
             // print only if para,value pair not processed before
             Set<String> hasKey = Config.zbGetCache.get(paraName);
